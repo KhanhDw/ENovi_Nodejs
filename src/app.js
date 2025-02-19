@@ -8,11 +8,13 @@ const mysqlEnovi = require("./config/database");
 
 const sessionMiddleware = require("./config/session"); // Import session middleware
 const passport = require("./config/passport"); // Import Passport configuration
+const crypto = require("crypto");
 
 const { uploadYoutube } = require("./services/video/uploadYoutube");
 const { deleteVideoTemp } = require("./services/video/deleteFileTemp");
 
 const app = express();
+const secret = crypto.randomBytes(64).toString("hex");
 
 // Middleware
 const getDomainFontEnd = require("./utils/domainFontEnd");
@@ -29,10 +31,14 @@ app.use(express.json());
 // Sử dụng session middleware
 app.use(
     expressSesion({
-        secret: "cats",
+        secret: process.env.SESSION_SECRET,
         resave: false,
         saveUninitialized: true,
-        cookie: { secure: true }, // Nếu dùng HTTPS thì đặt secure: true
+        cookie: {
+            maxAge: 1000 * 60 * 60 * 24, // 1 day
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+        },
     })
 );
 // Khởi tạo Passport

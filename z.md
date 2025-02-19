@@ -40,15 +40,3 @@ thêm lịch sử thanh toán
 
 đăng ký người dùng bằng google - ok
 đăng ký người dùng bằng ENovi
-
-// res.json({
-// success: true,
-// message: "Login successful! - login",
-// redirectUrl: "https://localhost:4200",
-// user: {
-// id: googleId,
-// name: name,
-// email: email,
-// picture: picture,
-// },
-// });

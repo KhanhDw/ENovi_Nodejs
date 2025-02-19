@@ -13,7 +13,7 @@ passport.use(
         },
         (req, accessToken, refreshToken, profile, done) => {
             console.log("Google Profile11:", profile); // Xem Google trả về gì
-            return done(null, profile);
+            return done(null, profile, accessToken, refreshToken);
         }
     )
 );

@@ -2,6 +2,7 @@ require("dotenv").config();
 
 const express = require("express");
 const passport = require("../config/passport");
+const { OAuth2Client } = require("google-auth-library");
 const authController = require("../controllers/authController");
 const userModel = require("../models/userModel");
 const { generateToken } = require("./../utils/JWT");
@@ -14,6 +15,7 @@ router.get(
     "/google",
     passport.authenticate("google", { scope: ["profile", "email"] })
 );
+
 router.get(
     "/google/callback",
     passport.authenticate("google", {
@@ -26,7 +28,7 @@ router.get(
                     // Sử dụng await và truyền trực tiếp các trường từ req.user
                     // Lấy các trường an toàn từ req.user (xử lý undefined)
                     const googleId = req.user.id || null;
-                    const name = req.user.displayName || null; // Thường dùng displayName
+                    const name = req.user.displayName || null;
                     const email =
                         (req.user.emails &&
                             req.user.emails[0] &&
@@ -39,14 +41,26 @@ router.get(
                         null; // Kiểm tra cẩn thận
 
                     try {
-                        if (userModel.findUserByGoogleId(googleId) !== null) {
-                            const token = generateToken(googleId);
+                        const userLoginGoogle =
+                            await userModel.findUserByGoogleId(googleId);
+                        const userIdLogin = await userModel.getUserByGoogleID(
+                            googleId
+                        );
+
+                        if (userLoginGoogle !== null) {
+                            const token = generateToken(userIdLogin);
                             const message = "login success";
-                            console.log("đăng nhập thành công");
+
+                            // LƯU ACCESS TOKEN VÀ REFRESH TOKEN VÀO SESSION
+                            req.session.accessToken = req.user.accessToken; // LƯU Ý: req.user ở ĐÂY
+                            if (req.user.refreshToken) {
+                                req.session.refreshToken =
+                                    req.user.refreshToken;
+                            }
+
                             return res.redirect(
                                 `${process.env.FONT_END_URL}/auth/callback?token=${token}&message=${message}`
                             );
-                            // return res.redirect("/users/ge");
                         } else {
                             await userModel.createUserGoogle(
                                 googleId,
@@ -54,16 +68,35 @@ router.get(
                                 email,
                                 picture
                             );
-                            // return res.redirect("/users/ge");
+
+                            const userIdLogin =
+                                await userModel.getUserByGoogleID(googleId);
+
+                            const token = generateToken(userIdLogin);
+                            const message = "register success";
+
+                            req.session.accessToken = req.user.accessToken;
+                            if (req.user.refreshToken) {
+                                req.session.refreshToken =
+                                    req.user.refreshToken;
+                            }
+
+                            if (req.user.refreshToken) {
+                                // Kiểm tra xem refreshToken có tồn tại không
+                                req.session.refreshToken =
+                                    req.user.refreshToken;
+                            }
+
+                            return res.redirect(
+                                `${process.env.FONT_END_URL}/auth/callback?token=${token}&message=${message}`
+                            );
                         }
                     } catch (error) {
-                        console.error("Lỗi xử lý Google callback:", error);
                         res.status(500).json({
                             success: false,
                             message: "Lỗi xử lý đăng nhập Google.",
                         });
                     }
-                    // res.redirect("/users/ge"); // Chuyển hướng đến nơi bạn muốn
                 } catch (error) {
                     console.error("Error creating user:", error);
                     res.status(500).send("Lỗi google đăng nhập get thông tin");
@@ -89,23 +122,22 @@ router.get("/profile", (req, res) => {
     });
 });
 
-router.get("/logout", (req, res) => {
-    // Hủy session nếu bạn đang sử dụng session
-    if (req.session) {
-        req.session.destroy();
-    }
-
-    // Hủy thông tin xác thực từ Passport
-    req.logout((err) => {
+router.get("/logout", async (req, res) => {
+    req.logout(function (err) {
         if (err) {
-            console.error("Lỗi khi đăng xuất:", err);
-            return res
-                .status(500)
-                .json({ success: false, message: "Lỗi khi đăng xuất" });
+            return next(err);
         }
-
-        // Thông báo đăng xuất thành công
-        res.json({ success: true, message: "Đăng xuất thành công" });
+        req.session.destroy((err) => {
+            if (err) {
+                return next(err);
+            }
+            res.clearCookie("connect.sid", {
+                path: "/",
+                httpOnly: true,
+                secure: true,
+            });
+            res.redirect("/users/ge");
+        });
     });
 });
 
