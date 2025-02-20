@@ -2,7 +2,6 @@ require("dotenv").config();
 
 const express = require("express");
 const passport = require("../config/passport");
-const { OAuth2Client } = require("google-auth-library");
 const authController = require("../controllers/authController");
 const userModel = require("../models/userModel");
 const { generateToken } = require("./../utils/JWT");
@@ -10,12 +9,14 @@ const { generateToken } = require("./../utils/JWT");
 const router = express.Router();
 
 router.get("/", authController.homelo);
+//------------------------------------------
 router.get("/go", authController.loginGoole);
+//------/google------------------------------
 router.get(
     "/google",
     passport.authenticate("google", { scope: ["profile", "email"] })
 );
-
+//------/google/callback-------------------------
 router.get(
     "/google/callback",
     passport.authenticate("google", {
@@ -107,8 +108,7 @@ router.get(
         }
     }
 );
-
-// Route lấy thông tin user sau khi đăng nhập
+// ----/profile--------------------------------
 router.get("/profile", (req, res) => {
     if (!req.user) return res.redirect("/auth/google");
     console.log("Session:", req.session); // Kiểm tra session có lưu không
@@ -121,7 +121,7 @@ router.get("/profile", (req, res) => {
         email: req.user.email,
     });
 });
-
+//------------------------------------------
 router.get("/logout", async (req, res) => {
     req.logout(function (err) {
         if (err) {
@@ -140,5 +140,6 @@ router.get("/logout", async (req, res) => {
         });
     });
 });
+//------------------------------------------
 
 module.exports = router;

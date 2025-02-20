@@ -15,9 +15,9 @@ const { deleteVideoTemp } = require("./services/video/deleteFileTemp");
 
 const app = express();
 const secret = crypto.randomBytes(64).toString("hex");
+const getDomainFontEnd = require("./utils/domainFontEnd");
 
 // Middleware
-const getDomainFontEnd = require("./utils/domainFontEnd");
 app.use(
     cors({
         origin: getDomainFontEnd, // Đổi thành domain của frontend
@@ -26,7 +26,8 @@ app.use(
         allowedHeaders: ["Content-Type", "Authorization"], //Allowed Headers. Add the ones you use.
     })
 );
-app.use(express.json());
+app.use(express.json()); // Xử lý JSON // Xử lý JSON
+app.use(express.urlencoded({ extended: true })); // Xử lý form data
 
 // Sử dụng session middleware
 app.use(

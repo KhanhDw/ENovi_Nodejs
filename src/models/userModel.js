@@ -12,6 +12,12 @@ class UserModel {
     static async getUserById(id) {
         return await executeQuery("SELECT * FROM users WHERE id = ?", [id]);
     }
+    static async getUserByEmail(email) {
+        return await executeQuery(
+            "SELECT users.id FROM users WHERE email = ?",
+            [email]
+        );
+    }
     static async getUserByGoogleID(googleid) {
         return await executeQuery(
             "SELECT users.id FROM users WHERE googleId = ?",
@@ -51,6 +57,27 @@ class UserModel {
         return await executeQuery(
             "UPDATE users SET name = ?, email = ? WHERE id = ?",
             [name, email, id]
+        );
+    }
+
+    static async CheckTokenValid(token) {
+        return await executeQuery(
+            "SELECT users.id, users.reset_token, users.reset_expires FROM users WHERE reset_token = ?",
+            [token]
+        );
+    }
+
+    static async updateTokenResetPasswordUser(email, resetToken, expiresAt) {
+        return await executeQuery(
+            "UPDATE users SET reset_token = ?, reset_expires = ? WHERE email = ?",
+            [resetToken, expiresAt, email]
+        );
+    }
+
+    static async updatePasswordUser(hashedPassword, token) {
+        return await executeQuery(
+            "UPDATE users SET password = ?, reset_token = NULL, reset_expires = NULL WHERE reset_token = ?",
+            [hashedPassword, token]
         );
     }
 
