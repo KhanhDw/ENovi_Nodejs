@@ -2,7 +2,7 @@ require("dotenv").config();
 const { executeQuery } = require("../config/query");
 const moment = require("moment");
 const generateRandomString = require("../utils/random");
-const Encryption = require("../utils/PasswordEncryption");
+const bcrypt = require("bcrypt");
 
 class UserModel {
     static async getAllUsers() {
@@ -27,7 +27,7 @@ class UserModel {
 
     static async createUserGoogle(googleId, username, email, img) {
         const now = moment().format("YYYY-MM-DD HH:mm:ss");
-        const randomPassword = Encryption(generateRandomString(10));
+        const randomPassword = bcrypt(generateRandomString(10));
         return await executeQuery(
             "INSERT INTO users ( googleId, username, email, password, avatar, role, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)",
             [googleId, username, email, randomPassword, img, "student", now]
@@ -60,25 +60,49 @@ class UserModel {
         );
     }
 
-    static async CheckTokenValid(token) {
-        return await executeQuery(
-            "SELECT users.id, users.reset_token, users.reset_expires FROM users WHERE reset_token = ?",
-            [token]
-        );
+    static async CheckTokenResetValid(email) {
+        try {
+            return await executeQuery(
+                "SELECT id, reset_token, reset_expires FROM users WHERE  email=?",
+                [email]
+            );
+        } catch (error) {
+            console.error(
+                "CheckTokenResetValid - Lỗi khi kiểm tra token:",
+                error
+            );
+            throw error; // Ném lỗi để router xử lý
+        }
     }
 
     static async updateTokenResetPasswordUser(email, resetToken, expiresAt) {
-        return await executeQuery(
-            "UPDATE users SET reset_token = ?, reset_expires = ? WHERE email = ?",
-            [resetToken, expiresAt, email]
-        );
+        try {
+            return await executeQuery(
+                "UPDATE users SET reset_token = ?, reset_expires = ? WHERE email = ?",
+                [resetToken, expiresAt, email]
+            );
+        } catch (error) {
+            console.error(
+                "updateTokenResetPasswordUser - Lỗi khi cập nhật mật khẩu:",
+                error
+            );
+            throw error;
+        }
     }
 
-    static async updatePasswordUser(hashedPassword, token) {
-        return await executeQuery(
-            "UPDATE users SET password = ?, reset_token = NULL, reset_expires = NULL WHERE reset_token = ?",
-            [hashedPassword, token]
-        );
+    static async updatePasswordUser(hashedPassword, email) {
+        try {
+            return await executeQuery(
+                "UPDATE users SET password = ?, reset_token = NULL, reset_expires = NULL WHERE email = ?",
+                [hashedPassword, email]
+            );
+        } catch (error) {
+            console.error(
+                "updatePasswordUser - Lỗi khi cập nhật mật khẩu:",
+                error
+            );
+            throw error;
+        }
     }
 
     static async deleteUser(id) {

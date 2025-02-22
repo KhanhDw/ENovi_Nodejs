@@ -18,15 +18,15 @@ const transporter = nodemailer.createTransport({
  */
 
 const sendResetPasswordEmail = async (email, resetToken) => {
-    const resetLink = `https://yourwebsite.com/reset-password?token=${resetToken}`;
+    const resetLink = `https://localhost:4200/reset-password?token=${resetToken}&email=${email}`;
 
     const mailOptions = {
-        from: `"Support" <${process.env.SMTP_USER}>`,
+        from: `"Support ENovi" <${process.env.SMTP_USER}>`,
         to: email,
         subject: "Khôi phục mật khẩu",
         html: ` <p>Bạn đã yêu cầu khôi phục mật khẩu. Nhấn vào link dưới đây để đặt lại mật khẩu:</p>
                 <br/>
-                <p>Đường dẫn chỉ có hiệU lực 10 phút!</p>
+                <p>Đường dẫn chỉ có hiệu lực 10 phút!</p>
                 <br/>
                 <a href="${resetLink}">${resetLink}</a>
                 <br/>
