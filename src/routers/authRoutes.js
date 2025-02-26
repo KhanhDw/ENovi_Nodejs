@@ -47,22 +47,22 @@ router.get(
                         const userIdLogin = await userModel.getUserByGoogleID(
                             googleId
                         );
+                        let token,
+                            message,
+                            isNewUser = false;
 
-                        if (userLoginGoogle !== null) {
-                            const token = generateToken(userIdLogin);
-                            const message = "login success";
 
-                            // LƯU ACCESS TOKEN VÀ REFRESH TOKEN VÀO SESSION
-                            req.session.accessToken = req.user.accessToken; // LƯU Ý: req.user ở ĐÂY
-                            if (req.user.refreshToken) {
-                                req.session.refreshToken =
-                                    req.user.refreshToken;
-                            }
+                            console.log("userLoginGoogle", userIdLogin);
 
-                            return res.redirect(
-                                `${process.env.FONT_END_URL}/auth/callback?token=${token}&message=${message}`
-                            );
+                        if (userLoginGoogle) {
+                            token = generateToken(userIdLogin);
+                            message = "login success";
+
+                            // return res.redirect(
+                            //     `${process.env.FONT_END_URL}/auth/callback?token=${token}&message=${message}`
+                            // );
                         } else {
+                            // tạo người dùng mới
                             await userModel.createUserGoogle(
                                 googleId,
                                 name,
@@ -73,41 +73,81 @@ router.get(
                             const userIdLogin =
                                 await userModel.getUserByGoogleID(googleId);
 
-                            const token = generateToken(userIdLogin);
-                            const message = "register success";
+                            token = generateToken(userIdLogin);
+                            message = "register success";
 
-                            req.session.accessToken = req.user.accessToken;
-                            if (req.user.refreshToken) {
-                                req.session.refreshToken =
-                                    req.user.refreshToken;
-                            }
-
-                            if (req.user.refreshToken) {
-                                // Kiểm tra xem refreshToken có tồn tại không
-                                req.session.refreshToken =
-                                    req.user.refreshToken;
-                            }
-
-                            return res.redirect(
-                                `${process.env.FONT_END_URL}/auth/callback?token=${token}&message=${message}`
-                            );
+                            // return res.redirect(
+                            //     `${process.env.FONT_END_URL}/auth/callback?token=${token}&message=${message}`
+                            // );
                         }
+
+                        // Lưu token vào session nếu cần
+                        req.session.accessToken = req.user.accessToken;
+                        if (req.user.refreshToken) {
+                            req.session.refreshToken = req.user.refreshToken;
+                        }
+
+                        // Trả về response JSON cho frontend
+                        // Lưu token vào session
+                        req.session.token = token;
+                        req.session.user = {
+                            id: userIdLogin[0].id,
+                            googleId,
+                            name,
+                            email,
+                            picture,
+                            role:userLoginGoogle.role ?? "student" // Gán "student" nếu role là undefined/null
+                        };
+                        req.session.isNewUser = isNewUser;
+                        req.session.message = message;
+                        // Redirect về frontend mà không cần dữ liệu trong query
+                        return res.redirect(
+                            `${process.env.FONT_END_URL}/auth/callback`
+                        );
                     } catch (error) {
-                        res.status(500).json({
-                            success: false,
-                            message: "Lỗi xử lý đăng nhập Google.",
-                        });
+                        console.error("Error in Google login process:", error);
+                        // return res.status(500).json({
+                        //     success: false,
+                        //     message: "Lỗi xử lý đăng nhập Google",
+                        //     error: error.message,
+                        // });
+                        return res.redirect(`${process.env.FONT_END_URL}/auth/callback?error=auth_failed`);
                     }
                 } catch (error) {
-                    console.error("Error creating user:", error);
-                    res.status(500).send("Lỗi google đăng nhập get thông tin");
+                    console.error("Error processing user data:", error);
+                    return res.status(500).json({
+                        success: false,
+                        message: "Lỗi xử lý thông tin người dùng",
+                        error: error.message,
+                    });
                 }
             } else {
-                res.redirect("/auth/go");
+                return res.status(401).json({
+                    success: false,
+                    message: "Không tìm thấy thông tin người dùng",
+                });
             }
         }
     }
 );
+//------/google/data-------------------------
+router.get('/google/data', (req, res) => {
+    if (req.session.token) {
+        const response = {
+            success: true,
+            message: req.session.message,
+            token: req.session.token,
+            user: req.session.user,
+            isNewUser: req.session.isNewUser
+        };
+        console.log("Session data:", response);
+        // Xóa session sau khi trả dữ liệu (tùy chọn)
+        req.session.destroy();
+        return res.status(200).json(response);
+    } else {
+        return res.status(401).json({ success: false, message: 'No session data' });
+    }
+});
 // ----/profile--------------------------------
 router.get("/profile", (req, res) => {
     if (!req.user) return res.redirect("/auth/google");

@@ -18,6 +18,20 @@ class UserModel {
             [email]
         );
     }
+    static async getUserByEmailLogin(email) {
+        return await executeQuery(
+            "SELECT users.id,users.email,users.username,users.password,users.avatar,users.role FROM users WHERE email = ?;",
+            [email]
+        );
+    }
+    static async getUserByUserName(username) {
+        return await executeQuery(
+            "SELECT users.id,users.email,users.username,users.password,users.avatar,users.role FROM users WHERE username = ?;",
+            [username]
+        );
+    }
+
+
     static async getUserByGoogleID(googleid) {
         return await executeQuery(
             "SELECT users.id FROM users WHERE googleId = ?",
@@ -31,6 +45,15 @@ class UserModel {
         return await executeQuery(
             "INSERT INTO users ( googleId, username, email, password, avatar, role, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)",
             [googleId, username, email, randomPassword, img, "student", now]
+        );
+    }
+
+
+    static async createUserENovi(username,password, email) {
+        const now = moment().format("YYYY-MM-DD HH:mm:ss");
+        return await executeQuery(
+            "INSERT INTO users ( googleId, username, email, password, avatar, role, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [null, username, email, password, null, "student", now]
         );
     }
 

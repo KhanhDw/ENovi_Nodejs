@@ -9,7 +9,6 @@ router.post("/reset-password", async (req, res) => {
     if (!token || !newPassword || !email) {
         return res.status(400).json({ message: "Thiếu thông tin yêu cầu!" });
     }
-
     console.log("reset pass: " + token, newPassword, email);
     try {
         // Kiểm tra token trong database và get user đó ra
@@ -22,20 +21,12 @@ router.post("/reset-password", async (req, res) => {
             return res.status(404).json({ message: "không có Token" });
         }
 
-        const { idSQL, reset_tokenSQL, reset_expiresSQL } = await user[0];
-
         console.log("idSQL: ", user[0].id);
         console.log("reset_tokenSQL: ", user[0].reset_token);
         console.log("reset_expiresSQL: ", user[0].reset_expires);
 
-        const resetExpires = new Date(reset_expiresSQL).getTime();
-        const now = new Date().getTime();
-        if (resetExpires < now) {
-            return res.status(401).json({
-                message: "Token đã hết hạn",
-                success: false,
-            });
-        }
+        
+     
 
         // Kiểm tra token có hợp lệ không
         try {
@@ -50,11 +41,16 @@ router.post("/reset-password", async (req, res) => {
             console.log("Lỗi so sánh token: ", error);
         }
 
+
+        const resetExpires = new Date(user[0].reset_expires);
+        const now = new Date();
+
+
         // // kiểm tra token hết hạn chưa
         try {
-            if (resetExpires > now) {
+            if (resetExpires < now) {
                 return res.status(401).json({
-                    message: "Token  đã hết hạn",
+                    message: "Token đã hết hạn1",
                     success: false,
                 });
             }
