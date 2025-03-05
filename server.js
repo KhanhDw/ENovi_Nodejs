@@ -11,7 +11,9 @@ const port = 3000;
 
 // Đọc SSL certificate
 const options = {
+    // key: fs.readFileSync(path.join(__dirname, "cert", "localhost-key.pem")), // Đường dẫn đến private key
     key: fs.readFileSync(path.join(__dirname, "cert", "private_key.pem")), // Đường dẫn đến private key
+    // cert: fs.readFileSync(path.join(__dirname, "cert", "localhost.pem")), // Đường dẫn đến certificate
     cert: fs.readFileSync(path.join(__dirname, "cert", "cert.pem")), // Đường dẫn đến certificate
 };
 

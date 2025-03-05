@@ -8,6 +8,9 @@ async function connectToDatabase() {
             user: "root",
             password: "1234",
             database: "enovisql",
+            waitForConnections: true,
+            connectionLimit: 10, // Giới hạn tối đa số kết nối
+            queueLimit: 0,
         });
         console.log("Kết nối MySQL thành công.");
         return connection;

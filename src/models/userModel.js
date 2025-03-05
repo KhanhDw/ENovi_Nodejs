@@ -32,6 +32,14 @@ class UserModel {
     }
 
 
+    static async getUserByNameAndCheckInstructor(Username){
+        return await executeQuery(
+            "SELECT users.id FROM users WHERE username = ? && role = 'instructor'",
+            [Username]
+        );
+    }
+
+
     static async getUserByGoogleID(googleid) {
         return await executeQuery(
             "SELECT users.id FROM users WHERE googleId = ?",

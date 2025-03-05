@@ -6,11 +6,11 @@ async function executeQuery(sql, params = []) {
     if (connection) {
         try {
             const [rows, fields] = await connection.execute(sql, params);
-            connection.end();
+            // connection.end();
             return rows;
         } catch (err) {
             console.error("Lỗi truy vấn:", err);
-            connection.end();
+            // connection.end();
             return null;
         }
     }

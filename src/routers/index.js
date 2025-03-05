@@ -20,6 +20,8 @@ router.use("/register", registerRouter);
 
 router.use("/categories", categoriesRouter);
 
+router.use("/course", authRoutes);
+
 router.use("/auth", authRoutes);
 router.use("/repass", resetPasswordRouter);
 router.use("/fopass", forgotPasswordRouter);
