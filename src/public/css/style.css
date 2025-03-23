@@ -1,0 +1,138 @@
+/* Reset CSS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    background-color: #f5f5f5;
+}
+
+/* Container styles */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header styles */
+.header {
+    background-color: #fff;
+    padding: 20px 0;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.header h3 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+/* Navigation styles */
+.nav-pills {
+    margin-bottom: 15px;
+}
+
+.nav-pills > li > a {
+    color: #666;
+    border-radius: 4px;
+    padding: 8px 15px;
+    margin: 0 5px;
+    transition: all 0.3s ease;
+}
+
+.nav-pills > li.active > a {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.nav-pills > li > a:hover {
+    background-color: #f8f9fa;
+    color: #007bff;
+}
+
+/* Form styles */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+}
+
+/* Button styles */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.btn-default {
+    background-color: #f8f9fa;
+    color: #333;
+    border: 1px solid #ddd;
+}
+
+.btn-default:hover {
+    background-color: #e9ecef;
+    color: #333;
+}
+
+/* Table styles */
+.table-responsive {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Footer styles */
+.footer {
+    text-align: center;
+    padding: 20px 0;
+    margin-top: 40px;
+    border-top: 1px solid #ddd;
+    color: #666;
+}
+
+/* Radio button styles */
+.radio-inline {
+    margin-right: 20px;
+    margin-bottom: 10px;
+}
+
+/* Success/Error message styles */
+.success-message {
+    color: #28a745;
+    text-align: center;
+    padding: 15px;
+    margin: 20px 0;
+    background-color: #d4edda;
+    border-radius: 4px;
+}
+
+.error-message {
+    color: #dc3545;
+    text-align: center;
+    padding: 15px;
+    margin: 20px 0;
+    background-color: #f8d7da;
+    border-radius: 4px;
+}

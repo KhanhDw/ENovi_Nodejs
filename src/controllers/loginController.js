@@ -43,9 +43,9 @@ const getUsersLogin = async (req, res) => {
                 });
             }
         } catch (error) {
-            console.log("Lỗi khi lấy danh sách người dùng:", error);
+            console.log("Lỗi khi đăng nhập người dùng:", error);
             return res.status(500).json({
-                message: "Lỗi khi lấy danh sách người dùng",
+                message: "Lỗi khi đăng nhập người dùng",
                 success: false,
                 error: error.json,
             });

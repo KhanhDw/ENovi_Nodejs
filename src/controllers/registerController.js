@@ -30,7 +30,7 @@ const RegisterUser = async (req, res) => {
                 });
             }
 
-            const isPasswordValid = await bcrypt.hash(password, 10);
+            const isPasswordValid = await bcrypt.hash(password, 5);
 
             await UserModel.createUserENovi(username, isPasswordValid, email);
 

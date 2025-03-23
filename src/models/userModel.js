@@ -12,6 +12,16 @@ class UserModel {
     static async getUserById(id) {
         return await executeQuery("SELECT * FROM users WHERE id = ?", [id]);
     }
+    static async searchUsers(keyword) {
+        const sql = `SELECT * FROM users WHERE username LIKE ? OR email LIKE ? OR role LIKE ?`;
+        const searchPattern = `%${keyword}%`;
+        return await executeQuery(sql, [
+            searchPattern,
+            searchPattern,
+            searchPattern,
+        ]);
+    }
+
     static async getUserByEmail(email) {
         return await executeQuery(
             "SELECT users.id FROM users WHERE email = ?",
@@ -20,44 +30,55 @@ class UserModel {
     }
     static async getUserByEmailLogin(email) {
         return await executeQuery(
-            "SELECT users.id,users.email,users.username,users.password,users.avatar,users.role FROM users WHERE email = ?;",
+            `SELECT 
+                users.id,
+                users.email,
+                users.username,
+                users.password,
+                users.avatar,
+                users.role,
+                users.website   ,
+                users.biography
+            FROM 
+                users WHERE email = ?;`,
             [email]
         );
     }
     static async getUserByUserName(username) {
         return await executeQuery(
-            "SELECT users.id,users.email,users.username,users.password,users.avatar,users.role FROM users WHERE username = ?;",
+            `SELECT 
+                users.id,
+                users.email,
+                users.username,
+                users.password,
+                users.avatar,
+                users.role,
+                users.website,  
+                users.biography 
+            FROM 
+                users 
+            WHERE 
+                username = ?;`,
             [username]
         );
     }
 
-
-    static async getUserByNameAndCheckInstructor(Username){
-        return await executeQuery(
-            "SELECT users.id FROM users WHERE username = ? && role = 'instructor'",
-            [Username]
-        );
-    }
-
-
     static async getUserByGoogleID(googleid) {
-        return await executeQuery(
-            "SELECT users.id FROM users WHERE googleId = ?",
-            [googleid]
-        );
+        return await executeQuery("SELECT id FROM users WHERE googleId = ?", [
+            googleid,
+        ]);
     }
 
     static async createUserGoogle(googleId, username, email, img) {
         const now = moment().format("YYYY-MM-DD HH:mm:ss");
-        const randomPassword = bcrypt(generateRandomString(10));
+        const randomPassword = await bcrypt.hash(generateRandomString(10), 5);
         return await executeQuery(
             "INSERT INTO users ( googleId, username, email, password, avatar, role, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)",
             [googleId, username, email, randomPassword, img, "student", now]
         );
     }
 
-
-    static async createUserENovi(username,password, email) {
+    static async createUserENovi(username, password, email) {
         const now = moment().format("YYYY-MM-DD HH:mm:ss");
         return await executeQuery(
             "INSERT INTO users ( googleId, username, email, password, avatar, role, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -136,8 +157,65 @@ class UserModel {
         }
     }
 
+    static async updateRoleUserToInstrutor(id) {
+        try {
+            return await executeQuery(
+                "UPDATE Users SET role = 'instructor' WHERE id = ?",
+                [id]
+            );
+        } catch (error) {
+            console.error("Lỗi khi nâng cấp user thành giảng viên:", error);
+            throw error;
+        }
+    }
+
     static async deleteUser(id) {
         return await executeQuery("DELETE FROM users WHERE id = ?", [id]);
+    }
+    static async countUserRegiterInMonth(year) {
+        console.log("year:" + year);
+        return await executeQuery(
+            `
+            SELECT
+                DATE_FORMAT(createdAt, '%Y-%m') AS month,
+                COUNT(*) AS user_count
+            FROM
+                Users
+            WHERE
+                YEAR(createdAt) = ?
+            GROUP BY
+                month
+            ORDER BY
+                month;
+            `,
+            [year]
+        );
+    }
+
+    static async updateUserImage(imageUrl, userId) {
+        try {
+            return await executeQuery(
+                "UPDATE Users SET avatar = ? WHERE id = ?",
+                [imageUrl, userId]
+            );
+        } catch (error) {
+            console.error("Lỗi khi cập nhật ảnh người dùng:", error);
+            throw error;
+        }
+    }
+
+
+    static async getUserAvatar(userId) {
+        try {
+            const [result] = await executeQuery(
+                "SELECT avatar FROM Users WHERE id = ?",
+                [userId]
+            );
+            return result.avatar;
+        } catch (error) {
+            console.error("Lỗi khi lấy avatar người dùng:", error);
+            throw error;
+        }
     }
 }
 

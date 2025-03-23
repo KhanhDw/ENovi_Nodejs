@@ -1,7 +1,9 @@
 require("dotenv").config();
 const express = require("express");
 const expressSesion = require("express-session");
+const rateLimit = require("express-rate-limit");
 const cors = require("cors");
+const path = require('path');
 // const bodyParser = require("body-parser");
 const routes = require("./routers/index");
 const mysqlEnovi = require("./config/database");
@@ -17,7 +19,23 @@ const app = express();
 const secret = crypto.randomBytes(64).toString("hex");
 const getDomainFontEnd = require("./utils/domainFontEnd");
 
-// Middleware
+// Cấu hình view engine
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
+
+// Phục vụ file tĩnh từ thư mục public
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Giới hạn tối đa 10 request trong 1 giây từ một IP
+const limiter = rateLimit({
+    windowMs: 1000, // 1 giây
+    max: 15, // Tối đa 10 request mỗi giây
+    message: { error: "Quá nhiều request, vui lòng thử lại sau." },
+});
+
+app.use(limiter); // Áp dụng middleware cho toàn bộ API
+// Cho phép truy cập file trong thư mục uploads
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use(
     cors({
         origin: getDomainFontEnd, // Đổi thành domain của frontend
@@ -26,13 +44,13 @@ app.use(
         allowedHeaders: ["Content-Type", "Authorization"], //Allowed Headers. Add the ones you use.
     })
 );
-app.use(express.json()); // Xử lý JSON // Xử lý JSON
-app.use(express.urlencoded({ extended: true })); // Xử lý form data
+app.use(express.json({ limit: '1mb' })); // Xử lý JSON // Xử lý JSON
+app.use(express.urlencoded({limit: '1mb', extended: true })); // Xử lý form data
 
 // Sử dụng session middleware
 app.use(
     expressSesion({
-        secret: process.env.SESSION_SECRET,
+        secret: process.env.SESSION_SECRET, 
         resave: false,
         saveUninitialized: true,
         cookie: {
@@ -48,7 +66,8 @@ app.use(passport.session());
 
 app.use("/", routes); // Kết nối các router
 
-mysqlEnovi.connectToDatabase();
+/* test connect database */
+mysqlEnovi.testDatabaseConnection();
 
 // uploadYoutube("video.mp4");
 // deleteVideoTemp("video.mp4");

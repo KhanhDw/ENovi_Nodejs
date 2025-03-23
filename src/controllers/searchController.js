@@ -10,6 +10,7 @@ const searchCoursesByTitle = async (req, res) => {
             level: req.query.level || "",
             price: req.query.price ? parseFloat(req.query.price) : null,
             page: req.query.page ? parseInt(req.query.page) : 1,
+            sort: req.query.sort ? decodeURIComponent(req.query.sort) : 'Mới nhất',
         };
 
 
@@ -20,6 +21,7 @@ const searchCoursesByTitle = async (req, res) => {
         // console.warn('level: '+queryParams.level);
         // console.warn('price: '+queryParams.price);
         // console.warn('page: '+queryParams.page);
+        // console.warn('sort: '+queryParams.sort);
 
 
         // loại bỏ các thuộc tính không cần thiết
@@ -27,15 +29,15 @@ const searchCoursesByTitle = async (req, res) => {
             Object.entries(queryParams).filter(([_, value]) => value !== "" && value !== null  && value !== undefined  && value !== -1)
         );
 
-        console.log("....1..."+Object.keys(filteredParams));
+        // console.log("....1..."+Object.keys(filteredParams));
 
-        console.warn('filteredParams title: '+filteredParams.title);
-        console.warn('filteredParams rating: '+filteredParams.rating);
-        console.warn('filteredParams language: '+filteredParams.language);
-        console.warn('filteredParams duration: '+filteredParams.duration);
-        console.warn('filteredParams level: '+filteredParams.level);
-        console.warn('filteredParams price: '+filteredParams.price);
-        console.warn('filteredParams page: '+filteredParams.page);
+        // console.warn('filteredParams title: '+filteredParams.title);
+        // console.warn('filteredParams rating: '+filteredParams.rating);
+        // console.warn('filteredParams language: '+filteredParams.language);
+        // console.warn('filteredParams duration: '+filteredParams.duration);
+        // console.warn('filteredParams level: '+filteredParams.level);
+        // console.warn('filteredParams price: '+filteredParams.price);
+        // console.warn('filteredParams page: '+filteredParams.page);
 
 
 
@@ -44,7 +46,7 @@ const searchCoursesByTitle = async (req, res) => {
             filteredParams
         );
 
-        console.warn('totalItem:'+totalItem);
+        // console.warn('totalItem:'+totalItem);
 
 
         res.status(200).json({

@@ -22,7 +22,7 @@ router.post("/forgot-password", async (req, res) => {
         }
         // Tạo token reset password
         const resetToken = crypto.randomBytes(32).toString("hex");
-        const hashedResetToken = await bcrypt.hash(resetToken, 10); // 10 là số rounds
+        const hashedResetToken = await bcrypt.hash(resetToken, 5); // 5 là số rounds
         console.log("hashedResetToken: ", hashedResetToken);
         const expiresAt = DateTime.now()
             .setZone("Asia/Ho_Chi_Minh") // Chuyển về múi giờ Việt Nam

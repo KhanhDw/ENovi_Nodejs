@@ -1,0 +1,15 @@
+extends layout
+
+//- Created by vinhnt on 6/16/2017.
+
+block content
+    if code == "00"
+        .success-message
+            h3 Giao dịch thành công
+            p Mã giao dịch: #{code}
+    else
+        .error-message
+            h3 Giao dịch thất bại
+            p Mã lỗi: #{code}
+    .text-center
+        a.btn.btn-default(href='/vnpay/order') Về danh sách

@@ -1,23 +1,28 @@
 // database.js
 const mysql = require("mysql2/promise");
 
-async function connectToDatabase() {
+const pool = mysql.createPool({
+    host: "localhost",
+    user: "root",
+    password: "1234",
+    database: "enovisql",
+    waitForConnections: true,
+    connectionLimit: 10, // Giới hạn số kết nối đồng thời
+    queueLimit: 0,
+});
+
+// Kiểm tra kết nối khi khởi động app
+async function testDatabaseConnection() {
     try {
-        const connection = await mysql.createConnection({
-            host: "localhost",
-            user: "root",
-            password: "1234",
-            database: "enovisql",
-            waitForConnections: true,
-            connectionLimit: 10, // Giới hạn tối đa số kết nối
-            queueLimit: 0,
-        });
-        console.log("Kết nối MySQL thành công.");
-        return connection;
+        const connection = await pool.getConnection();
+        console.log("✅ Kết nối MySQL thành công!");
+        connection.release(); // Giải phóng kết nối về pool
     } catch (err) {
-        console.error("Lỗi kết nối MySQL:", err);
-        return null;
+        console.error("❌ Lỗi kết nối MySQL:", err);
     }
 }
 
-module.exports = { connectToDatabase };
+// Gọi kiểm tra ngay khi app khởi động
+// testDatabaseConnection();
+
+module.exports = { pool, testDatabaseConnection };
