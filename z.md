@@ -40,3 +40,13 @@ thêm lịch sử thanh toán
 
 đăng ký người dùng bằng google - ok
 đăng ký người dùng bằng ENovi
+
+
+
+để dùng ngrok thì :   pkill ngrok
+
+
+-- cách public website 
+cài đặt: npm install -g localtunnel 
+public website với port đang dùng: lt --port 3000 --subdomain  <đặt tên web>
+mở terminal cmd lấy password vào web: curl https://loca.lt/mytunnelpassword

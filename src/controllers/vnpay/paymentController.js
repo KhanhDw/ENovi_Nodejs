@@ -73,11 +73,14 @@ const orderController = {
 
         let signData = querystring.stringify(vnp_Params, { encode: false });
         let hmac = crypto.createHmac("sha512", secretKey);
-        let signed = hmac.update(new Buffer(signData, 'utf-8')).digest("hex"); 
+        let signed = hmac.update(Buffer.from(signData, 'utf-8')).digest("hex"); 
         vnp_Params['vnp_SecureHash'] = signed;
         vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
+        console.warn('signData;',signData);
+        console.warn('signed:',signed);
 
-        res.redirect(vnpUrl);
+        // res.redirect(vnpUrl);
+        res.status(200).json({urlvnpay: vnpUrl});
     },
 
     // Xử lý kết quả trả về từ VNPay
@@ -264,14 +267,14 @@ function sortObject(obj) {
     let sorted = {};
     let str = [];
     let key;
-    for (key in obj){
+    for (key in obj) {
         if (obj.hasOwnProperty(key)) {
-            str.push(encodeURIComponent(key));
+            str.push(key);
         }
     }
     str.sort();
     for (key = 0; key < str.length; key++) {
-        sorted[str[key]] = encodeURIComponent(obj[str[key]]).replace(/%20/g, "+");
+        sorted[str[key]] = obj[str[key]];
     }
     return sorted;
 }

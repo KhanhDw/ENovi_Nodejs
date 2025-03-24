@@ -19,6 +19,9 @@ const app = express();
 const secret = crypto.randomBytes(64).toString("hex");
 const getDomainFontEnd = require("./utils/domainFontEnd");
 
+// Thêm dòng này trước các middleware khác
+app.set('trust proxy', 1);
+
 // Cấu hình view engine
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
