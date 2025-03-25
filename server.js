@@ -15,12 +15,12 @@ const options = {
 
 
 // Khởi động server
-app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
-});
-
-
-
-// https.createServer(options, app).listen(port, async () => {
-//     console.log(`Server is running on https://localhost:${port}`);
+// app.listen(port, () => {
+//     console.log(`Server is running on http://localhost:${port}`);
 // });
+
+
+
+https.createServer(options, app).listen(port, async () => {
+    console.log(`Server is running on https://localhost:${port}`);
+});
