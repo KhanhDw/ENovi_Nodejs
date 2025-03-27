@@ -109,9 +109,34 @@ const deleteLession = async (req, res) => {
     }
 };
 
+
+const   getLessonToWatch = async (req, res) => {
+    try {
+        const { sectionId, lectureId, courseId } = req.query; // Changed to req.query to match the way parameters are sent in the HTTP GET request
+
+        console.log("getLessonToWatch: ", sectionId, lectureId, courseId);
+
+        if (!sectionId || !lectureId || !courseId)
+            return res.status(400).json({ error: "Missing required parameters lecture" });
+
+        const lesson = await LessionModel.getLessonToWatch(sectionId, lectureId, courseId);
+
+        if (!lesson)
+            return res.status(404).json({ success: false, message: "Lesson not found" });
+
+        return res.status(200).json({
+            success: true,
+            message: "Lesson retrieved successfully",
+            lesson,
+        });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error });
+    }
+};
+
 module.exports = {
     getLession,
     updateLessonTitle,
     updateLessonNameVideo,
-    createLession,deleteLession
+    createLession,deleteLession, getLessonToWatch
 };

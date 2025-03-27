@@ -24,7 +24,7 @@ const saveVideoLesson = async (req, res) => {
         res.status(200).json({
             success: true,
             message: "Upload video lên hệ thống thành công",
-            namevideo: namevideo,
+            namevideo: fileNameWithExt,
         });
 
         // // Khi hoàn tất lưu file, thực hiện upload lên YouTube

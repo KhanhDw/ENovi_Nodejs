@@ -442,6 +442,7 @@ class CourseModel {
     static async getAllCourse() {
         return await executeQuery("SELECT * FROM Courses");
     }
+    
     static async getCourseByTitleLike(title) {
         const safeTitle = title.replace(/[%_]/g, "\\$&"); // Escape special characters for SQL LIKE
         return await executeQuery("SELECT * FROM Courses WHERE title LIKE ?", [
@@ -497,8 +498,6 @@ class CourseModel {
         return await executeQuery(query, [userId, `%${safeCourseName}%`]);
     }
 
-
-
     static async getCountCoursesByInstructor(instructorId) {
         try {
             const query = `
@@ -514,7 +513,25 @@ class CourseModel {
         }
     }
 
-
+    // coursePay
+    static async getCoursePaymentById(courseId = []) {
+        if (!Array.isArray(courseId) || courseId.length === 0) {
+            throw new Error("courseId must be a non-empty array");
+        }
+        const placeholders = courseId.map(() => "?").join(", ");
+        const query = `
+            SELECT 
+                id,
+                img,
+                title,
+                rating,
+                price,
+                percent_discount
+            FROM Courses
+            WHERE id IN (${placeholders});
+        `;
+        return await executeQuery(query, courseId);
+    }
 }
 
 

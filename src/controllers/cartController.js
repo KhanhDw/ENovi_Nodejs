@@ -7,9 +7,9 @@ const getListCourseInCartUserId = async (req, res) => {
         if (!userId) res.status(400).json({message: 'thieeys duw leieuj'});
         const getlistCourseInCart = await cartModel.getListCourseInCartUserId(userId);
 
-        console.log("getlistLanguages:"+getlistCourseInCart);
+        console.log("danh sach khoa hoc trong cart:"+getlistCourseInCart);
 
-        return res.status(200).json({success: true, listCourse: getlistCourseInCart})
+        return res.status(200).json({success: true, listCourse: getlistCourseInCart})   
     } catch (error) {
         return res.status(500).json({success: false, message: error})
     }

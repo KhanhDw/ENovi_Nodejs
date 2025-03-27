@@ -397,6 +397,41 @@ const getCountCoursesByInstructor = async (req, res) => {
     }
 };
 
+
+const getCoursePaymentById = async (req, res) => {
+    try {
+        const { courseIds } = req.body;
+
+        if (!Array.isArray(courseIds) || courseIds.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: "courseIds must be a non-empty array",
+            });
+        }
+
+        const course = await CourseModel.getCoursePaymentById(courseIds);
+
+        if (!course || course.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Không tìm thấy khóa học",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            course: course,
+        });
+    } catch (error) {
+        console.error("Lỗi khi lấy thông tin thanh toán khóa học:", error);
+        res.status(500).json({
+            success: false,
+            message: "Lỗi server khi lấy thông tin thanh toán khóa học",
+            error: error.message,
+        });
+    }
+};
+
 module.exports = {
     getCourseById,
     getCourseByTitle,
@@ -417,4 +452,5 @@ module.exports = {
     getTopRatedFreeCourses,
     getTopRatedCourses,
     getCountCoursesByInstructor,
+    getCoursePaymentById,
 };

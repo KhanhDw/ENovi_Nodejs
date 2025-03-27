@@ -18,6 +18,10 @@ const cartRouter = require("./cartRouter");
 const mylearningRouter = require("./mylearningRouter");
 const enrollmentRouter = require("./enrollmentRoutes");
 const paymentRoutes = require("./vnpay/paymentRoutes");
+const lessonRouter = require("./lessonRouter");
+const streamVideo = require("./streamVideoRoutes");
+const paymentHistoryRoutes = require("./paymentHistoryRouter");
+
 
 // Kết nối các router con
 router.use("/search", searchRoutes);
@@ -33,6 +37,8 @@ router.use("/admin", adminRoutes);
 router.use("/cart", cartRouter);
 router.use("/my-learning", mylearningRouter);
 router.use("/enrollment", enrollmentRouter);
+router.use("/lesson", lessonRouter);
+router.use("/stream", streamVideo);
 
 // đặc biệt
 router.use("/upload-img", uploadImageRouter);
@@ -41,5 +47,9 @@ router.use("/languages", languageRouter);
 
 // vnpay
 router.use("/vnpay/order", paymentRoutes);
+// payment history
+router.use("/payment-history", paymentHistoryRoutes);
+
+
 
 module.exports = router;

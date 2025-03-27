@@ -64,6 +64,25 @@ class MylearningModel {
             throw error;
         }
     }
+
+
+    async getExistingCoursesInMyLearning(userId, courseIds) {
+        const query = `
+            SELECT courseId
+            FROM MyLearning
+            WHERE userId = ? AND courseId IN (${courseIds.map(() => '?').join(',')});
+        `;
+        try {
+            const result = await executeQuery(query, [userId, ...courseIds]);
+            return result.map(row => row.courseId);
+        } catch (error) {
+            console.error("Error fetching existing courses in MyLearning:", error);
+            throw error;
+        }
+    }
+
+
+
     
 }
 

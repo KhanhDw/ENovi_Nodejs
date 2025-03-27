@@ -15,6 +15,9 @@ router.post("/create", courseController.createCourse);
 // tạo mới lesson (POST create new lesson)
 router.post("/lesson/create", LessionController.createLession);
 
+// ✅ Lấy thông tin thanh toán khóa học theo courseId (POST - đọc dữ liệu) ////
+router.post("/course/payment", courseController.getCoursePaymentById);
+
 // ✅ Xóa sectoion theo courseID (DELETE - xóa dữ liệu)
 router.post("/:courseId/section/create", sectionController.createSection);
 
@@ -72,6 +75,7 @@ router.get(
 // ✅ Lấy danh sách khóa học miễn phí được đánh giá cao (GET - danh sách)
 router.get("/top-rated/free", courseController.getTopRatedFreeCourses);
 
+
 // ✅ Lấy danh sách khóa học được đánh giá cao (GET - danh sách)
 router.get("/top-rated", courseController.getTopRatedCourses);
 
@@ -99,6 +103,8 @@ router.get("/:idCourse/:instructorId", courseController.getCourseById);
 
 // ✅ Lấy tổng số khóa học của giảng viên theo instructorId (GET - đếm tổng)
 router.get("/instructor/:instructorId/total-courses", courseController.getCountCoursesByInstructor);
+
+
 
 // router.get("/price/:price", courseController.getCourseByPrice); // GET /api/courses/price/:price
 // router.get("/level/:level", courseController.getCourseByLevel); // GET /api/courses/level/:level

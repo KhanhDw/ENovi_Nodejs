@@ -4,7 +4,7 @@ const { executeQuery } = require("../config/query");
 class LessionModel {
     static async getLessionBySectionId(sectionId) {
         return await executeQuery(
-            `select id, sectionId, title, videoUrl, lessonOrder, nameFileVideo from lessons  where sectionId = ? ;`,
+            `select id, sectionId, title, lessonOrder, nameFileVideo from lessons  where sectionId = ? ;`,
             [sectionId]
         );
     }
@@ -59,6 +59,13 @@ class LessionModel {
             console.error("Error creating lesson:", error);
             throw error;
         }
+    }
+
+    static async getLessonToWatch(sectionId, lectureId, courseId) {
+        return await executeQuery(
+            `SELECT * FROM lessons WHERE sectionId = ? AND courseId = ? AND id = ?;`,
+            [sectionId, courseId, lectureId]
+        );
     }
     
 }

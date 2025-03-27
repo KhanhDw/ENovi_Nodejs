@@ -6,11 +6,15 @@ const vnpayConfig = require("../../config/vnpay.config");
 const crypto = require("crypto");
 const querystring = require("qs");
 const mylearningModel = require("../../models/mylearningModel");
+const paymentModel = require("../../models/paymentModel");
 
 const mylearning = new mylearningModel();
 
-
 const orderController = {
+    // ==================================================
+    // api vnpay
+    // ==================================================
+
     // Hiển thị danh sách đơn hàng
     getOrderList: (req, res) => {
         res.render("orderlist", { title: "Danh sách đơn hàng" });
@@ -125,11 +129,26 @@ const orderController = {
         if (secureHash === signed) {
             if (vnp_Params["vnp_ResponseCode"] === "00") {
                 try {
+                    const status =
+                        vnp_Params["vnp_ResponseCode"] === "00"
+                            ? "completed"
+                            : "failed";
+
+                    const paymentData = {
+                        userId: userId,
+                        courseId: courses[0],
+                        amount: vnp_Params["vnp_Amount"] / 100,
+                        paymentMethod: "vnpay",
+                        status: status,
+                        paymentDate: formatVNPayDate(vnp_Params["vnp_PayDate"]),
+                    };
+
                     await mylearning.addToMyLearning(userId, courses[0]);
+                    await paymentModel.addPaymentHistory(paymentData);
+
                     return res.redirect(
                         `${process.env.FONT_END_URL}/payment/success?status=success&orderId=${vnp_Params.vnp_TxnRef}`
                     );
-                    
                 } catch (error) {
                     console.error("Error adding to MyLearning1:", error);
                 }
@@ -367,6 +386,34 @@ const orderController = {
             console.error("Error:", error);
         }
     },
+
+    // ==================================================
+    // phần thanh toán của tôi,
+    // ==================================================
+
+    // Lấy lịch sử thanh toán theo tiêu đề khóa học và userId
+    getPaymentHistoryByCourseTitleAndUserId: async (req, res) => {
+        const { title, userId } = req.body;
+        try {
+            const paymentHistory = await paymentModel.getPaymentHistoryByCourseTitleAndUserId(title, userId);
+            res.status(200).json({ success: true, data: paymentHistory });
+        } catch (error) {
+            console.error("Error fetching payment history by course title and userId:", error);
+            res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    },
+
+    // Lấy lịch sử thanh toán theo userId
+    getPaymentHistoryByUserId: async (req, res) => {
+        const { userId } = req.body;
+        try {
+            const paymentHistory = await paymentModel.getPaymentHistoryByUserId(userId);
+            res.status(200).json({ success: true, data: paymentHistory });
+        } catch (error) {
+            console.error("Error fetching payment history by userId:", error);
+            res.status(500).json({ success: false, message: "Internal server error" });
+        }
+    }
 };
 
 // Hàm sắp xếp object theo key
@@ -401,6 +448,16 @@ function extractDataCourseIdAndUserId(str) {
     } else {
         return [[], null]; // Trả về mảng rỗng và null nếu không tìm thấy dữ liệu
     }
+}
+
+function formatVNPayDate(dateStr) {
+    const year = dateStr.substring(0, 4);
+    const month = dateStr.substring(4, 6);
+    const day = dateStr.substring(6, 8);
+    const hour = dateStr.substring(8, 10);
+    const minute = dateStr.substring(10, 12);
+    const second = dateStr.substring(12, 14);
+    return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
 }
 
 module.exports = orderController;
