@@ -10,7 +10,7 @@ class UserModel {
     }
 
     static async getUserById(id) {
-        return await executeQuery("SELECT * FROM users WHERE id = ?", [id]);
+        return await executeQuery("SELECT * FROM users WHERE id = ?;", [id]);
     }
     static async searchUsers(keyword) {
         const sql = `SELECT * FROM users WHERE username LIKE ? OR email LIKE ? OR role LIKE ?`;

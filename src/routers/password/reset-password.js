@@ -80,4 +80,48 @@ router.post("/reset-password", async (req, res) => {
     }
 });
 
+router.post("/change-password", async (req, res) => {
+    const { userId, currentPassword, newPassword } = req.body;
+
+    console.log({ userId, currentPassword, newPassword });
+
+    if (!userId || !currentPassword || !newPassword) {
+        return res.status(400).json({ message: "Thiếu thông tin yêu cầu!" });
+    }
+
+    try {
+        // Lấy thông tin người dùng từ userId
+        const user = await userModel.getUserById(userId);
+
+        console.log('user', user[0].password);
+
+        if (!user) {
+            return res.status(404).json({ message: "Người dùng không tồn tại" });
+        }
+
+        // Kiểm tra mật khẩu hiện tại
+        const isPasswordValid = await bcrypt.compare(currentPassword, user[0].password);
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: "Mật khẩu hiện tại không đúng" });
+        }
+
+        // Mã hóa mật khẩu mới
+        const hashedPassword = await bcrypt.hash(newPassword, 5);
+
+        // Cập nhật mật khẩu mới
+        await userModel.updatePasswordUser(hashedPassword, userId);
+
+        res.json({
+            message: "Mật khẩu đã được thay đổi thành công",
+            success: true,
+        });
+    } catch (error) {
+        console.error("Lỗi khi thay đổi mật khẩu: ", error);
+        res.status(500).json({
+            message: "Đã có lỗi xảy ra khi thay đổi mật khẩu",
+            success: false,
+        });
+    }
+});
+
 module.exports = router;
