@@ -169,14 +169,14 @@ const orderController = {
                         });
                     }
                     try {
-                        await paymentModel.addPaymentHistory(paymentDataArray);
+                        await paymentModel.addPaymentHistory(paymentDataArray); // điều chỉnh 
                         try {
-                            await mylearning.addToMyLearning(userId, courses);
+                            await mylearning.addToMyLearning(userId, courses);// điều chỉnh 
                             try {
                                 await EnrollmentModel.addEnrollment(
                                     userId,
                                     courses
-                                );
+                                );// điều chỉnh 
                             } catch (error) {
                                 console.error(
                                     "Error in getCoursePrices:333333",
