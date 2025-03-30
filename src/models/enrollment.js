@@ -44,10 +44,13 @@ class EnrollmentModel {
 
     static async addEnrollment(userId, courseId) {
         try {
+            const values = courseId.map(id => [userId, id]);
+            const placeholders = values.map(() => '(?, ?)').join(', ');
+            const flattenedValues = values.flat();
             const result = await executeQuery(
                 `INSERT INTO Enrollments (userId, courseId) 
-                VALUES (?, ?)`,
-                [userId, courseId]
+                VALUES ${placeholders}`,
+                flattenedValues
             );
             
             if (result.affectedRows > 0) {

@@ -7,6 +7,8 @@ const crypto = require("crypto");
 const querystring = require("qs");
 const mylearningModel = require("../../models/mylearningModel");
 const paymentModel = require("../../models/paymentModel");
+const EnrollmentModel = require("../../models/enrollment");
+const CourseModel = require("../../models/courseModel");
 
 const mylearning = new mylearningModel();
 
@@ -112,6 +114,7 @@ const orderController = {
         const [courses, userId] = extractDataCourseIdAndUserId(
             vnp_Params.vnp_OrderInfo
         );
+
         console.warn(courses, userId);
 
         delete vnp_Params["vnp_SecureHash"];
@@ -133,18 +136,59 @@ const orderController = {
                         vnp_Params["vnp_ResponseCode"] === "00"
                             ? "completed"
                             : "failed";
+                    let paymentDataArray = [];
 
-                    const paymentData = {
-                        userId: userId,
-                        courseId: courses[0],
-                        amount: vnp_Params["vnp_Amount"] / 100,
-                        paymentMethod: "vnpay",
-                        status: status,
-                        paymentDate: formatVNPayDate(vnp_Params["vnp_PayDate"]),
-                    };
+                    if (courses.length === 1) {
+                        paymentDataArray = {
+                            userId: userId,
+                            courseId: courses,
+                            amount: vnp_Params["vnp_Amount"] / 100,
+                            paymentMethod: "vnpay",
+                            status: status,
+                            paymentDate: formatVNPayDate(
+                                vnp_Params["vnp_PayDate"]
+                            ),
+                        };
+                    }
+                    if (courses.length !== 1) {
+                        getCoursePrices(courses).then((coursePrices) => {
+                            console.log("coursePrices:", coursePrices);
 
-                    await mylearning.addToMyLearning(userId, courses[0]);
-                    await paymentModel.addPaymentHistory(paymentData);
+                            paymentDataArray = coursePrices.map((course) => ({
+                                userId: userId,
+                                courseId: course.id, // lấy id từ coursePrices
+                                amount: course.price, // lấy giá từ coursePrices
+                                paymentMethod: "vnpay",
+                                status: status,
+                                paymentDate: formatVNPayDate(
+                                    vnp_Params["vnp_PayDate"]
+                                ),
+                            }));
+
+                            console.log("paymentDataArray:", paymentDataArray);
+                        });
+                    }
+                    try {
+                        await paymentModel.addPaymentHistory(paymentDataArray);
+                        try {
+                            await mylearning.addToMyLearning(userId, courses);
+                            try {
+                                await EnrollmentModel.addEnrollment(
+                                    userId,
+                                    courses
+                                );
+                            } catch (error) {
+                                console.error(
+                                    "Error in getCoursePrices:333333",
+                                    error
+                                );
+                            }
+                        } catch (error) {
+                            console.error("Error in getCoursePrices:222222", error);
+                        }
+                    } catch (error) {
+                        console.error("Error in getCoursePrices:11111", error);
+                    }
 
                     return res.redirect(
                         `${process.env.FONT_END_URL}/payment/success?status=success&orderId=${vnp_Params.vnp_TxnRef}`
@@ -395,11 +439,21 @@ const orderController = {
     getPaymentHistoryByCourseTitleAndUserId: async (req, res) => {
         const { title, userId } = req.body;
         try {
-            const paymentHistory = await paymentModel.getPaymentHistoryByCourseTitleAndUserId(title, userId);
+            const paymentHistory =
+                await paymentModel.getPaymentHistoryByCourseTitleAndUserId(
+                    title,
+                    userId
+                );
             res.status(200).json({ success: true, data: paymentHistory });
         } catch (error) {
-            console.error("Error fetching payment history by course title and userId:", error);
-            res.status(500).json({ success: false, message: "Internal server error" });
+            console.error(
+                "Error fetching payment history by course title and userId:",
+                error
+            );
+            res.status(500).json({
+                success: false,
+                message: "Internal server error",
+            });
         }
     },
 
@@ -407,13 +461,18 @@ const orderController = {
     getPaymentHistoryByUserId: async (req, res) => {
         const { userId } = req.body;
         try {
-            const paymentHistory = await paymentModel.getPaymentHistoryByUserId(userId);
+            const paymentHistory = await paymentModel.getPaymentHistoryByUserId(
+                userId
+            );
             res.status(200).json({ success: true, data: paymentHistory });
         } catch (error) {
             console.error("Error fetching payment history by userId:", error);
-            res.status(500).json({ success: false, message: "Internal server error" });
+            res.status(500).json({
+                success: false,
+                message: "Internal server error",
+            });
         }
-    }
+    },
 };
 
 // Hàm sắp xếp object theo key
@@ -458,6 +517,16 @@ function formatVNPayDate(dateStr) {
     const minute = dateStr.substring(10, 12);
     const second = dateStr.substring(12, 14);
     return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+}
+
+async function getCoursePrices(courseIds) {
+    try {
+        const courses = await CourseModel.getCoursePaymentById(courseIds);
+        return courses;
+    } catch (error) {
+        console.error("Error fetching course prices:", error);
+        throw new Error("Failed to fetch course prices");
+    }
 }
 
 module.exports = orderController;

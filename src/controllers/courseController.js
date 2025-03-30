@@ -400,16 +400,18 @@ const getCountCoursesByInstructor = async (req, res) => {
 
 const getCoursePaymentById = async (req, res) => {
     try {
-        const { courseIds } = req.body;
+        const { courseIds } = req.query;
 
-        if (!Array.isArray(courseIds) || courseIds.length === 0) {
+        const courseIdsArray = courseIds.split(',').map(id => id.trim());
+
+        if (!Array.isArray(courseIdsArray) || courseIdsArray.length === 0) {
             return res.status(400).json({
                 success: false,
-                message: "courseIds must be a non-empty array",
+                message: "courseIdsArray must be a non-empty array",
             });
         }
 
-        const course = await CourseModel.getCoursePaymentById(courseIds);
+        const course = await CourseModel.getCoursePaymentById(courseIdsArray);
 
         if (!course || course.length === 0) {
             return res.status(404).json({
@@ -427,6 +429,34 @@ const getCoursePaymentById = async (req, res) => {
         res.status(500).json({
             success: false,
             message: "Lỗi server khi lấy thông tin thanh toán khóa học",
+            error: error.message,
+        });
+    }
+};
+
+const updateIntroVideo = async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        const { introVideoUrl } = req.body;
+
+        if (!courseId || !introVideoUrl) {
+            return res.status(400).json({
+                success: false,
+                message: "Thiếu thông tin cần thiết để cập nhật intro_video",
+            });
+        }
+
+        await CourseModel.updateIntroVideo(courseId, introVideoUrl);
+
+        res.status(200).json({
+            success: true,
+            message: "Cập nhật intro_video thành công",
+        });
+    } catch (error) {
+        console.error("Lỗi khi cập nhật intro_video:", error);
+        res.status(500).json({
+            success: false,
+            message: "Lỗi server khi cập nhật intro_video",
             error: error.message,
         });
     }
@@ -453,4 +483,5 @@ module.exports = {
     getTopRatedCourses,
     getCountCoursesByInstructor,
     getCoursePaymentById,
+    updateIntroVideo,
 };

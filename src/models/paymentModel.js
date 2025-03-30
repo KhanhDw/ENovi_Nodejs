@@ -2,21 +2,32 @@ require("dotenv").config();
 const { executeQuery } = require("../config/query");
 
 class paymentModel {
-    static async addPaymentHistory(data) {
+    static async addPaymentHistory(dataArray) {
         const query = `
-            INSERT INTO PaymentsHistory 
-            (userId, courseId, amount, paymentMethod, status, paymentDate) 
-            VALUES (?, ?, ?, ?, ?, ?)
-        `;
+        INSERT INTO PaymentsHistory 
+        (userId, courseId, amount, paymentMethod, status, paymentDate) 
+        VALUES (?, ?, ?, ?, ?, ?)
+    `;
+
+    const paymentItems = Array.isArray(dataArray) ? dataArray : [dataArray];
+    console.log("dataArray", paymentItems);
+
+    for (const data of paymentItems) {
+        if (!data.userId || !data.courseId || !data.amount || !data.paymentMethod || !data.status || !data.paymentDate) {
+            throw new Error("Missing required fields for adding payment history");
+        }
+
         const values = [
-            data.userId,
-            data.courseId,
-            data.amount,
+            parseInt(data.userId, 10),
+            parseInt(data.courseId[0], 10), // Lấy courseId đầu tiên nếu là mảng
+            parseFloat(data.amount),
             data.paymentMethod,
             data.status,
-            data.paymentDate,
+            new Date(data.paymentDate),
         ];
-        return await executeQuery(query, values);
+
+        await executeQuery(query, values);
+    }
     }
 
     static async getPaymentHistoryByCourseTitleAndUserId(title, userId) {
@@ -80,12 +91,12 @@ class paymentModel {
         return await executeQuery(query, values);
     }
 
-
     static async getWithdrawalHistoryInstructor(userId) {
-        const query = `
+        console.log("userId: " + userId);
+        let query = `
             SELECT 
                 pr.id AS request_id, 
-                pr.user_id, 
+                pr.user_id AS userId, 
                 pr.payment_method_id, 
                 pr.amount, 
                 pr.status, 
@@ -98,11 +109,102 @@ class paymentModel {
             FROM payment_requests pr
             INNER JOIN payment_methods pm ON pr.payment_method_id = pm.id
             INNER JOIN Banks b ON pm.bank_id = b.id
-            WHERE pr.user_id = ?
-            ORDER BY pr.created_at DESC
         `;
-        const values = [userId];
+
+        const values = [];
+        if (parseInt(userId, 10) !== -1) {
+            query += ` WHERE pr.user_id = ?`;
+            values.push(parseInt(userId, 10));
+        }
+
+        query += ` ORDER BY pr.created_at DESC`;
+        // console.log("SQL Query:", query, values);
+
         return await executeQuery(query, values);
+    }
+    static async getWithdrawalHistoryInstructor_confirmed(userId) {
+        console.log("userId1: " + userId);
+
+        let query = `
+            SELECT 
+            pr.id AS request_id, 
+            pr.user_id AS userId, 
+            pr.payment_method_id, 
+            pr.amount, 
+            pr.status, 
+            pr.created_at AS request_created_at, 
+            pr.updated_at AS request_updated_at, 
+            b.nameBank AS bank_name,
+            pm.account_holder_name, 
+            pm.bank_account_number, 
+            pm.email
+            FROM payment_requests pr
+            INNER JOIN payment_methods pm ON pr.payment_method_id = pm.id
+            INNER JOIN Banks b ON pm.bank_id = b.id
+            WHERE pr.status = 'completed'
+        `;
+
+        const values = [];
+        if (parseInt(userId, 10) !== -1) {
+            query += ` AND pr.user_id = ?`;
+            values.push(parseInt(userId, 10));
+        }
+
+        query += ` ORDER BY pr.created_at DESC`;
+        // console.log("SQL Query11111:", query, values);
+
+        return await executeQuery(query, values);
+    }
+
+    static async updatePaymentStatus(paymentHistoryId, newStatus) {
+        const validStatuses = ["completed", "rejected", "approved"];
+        if (!validStatuses.includes(newStatus)) {
+            throw new Error(
+                "Invalid status. Valid statuses are: 'completed', 'rejected', 'approved'."
+            );
+        }
+
+        const query = `
+            UPDATE payment_requests
+            SET status = ?
+            WHERE id = ?
+        `;
+        const values = [newStatus, paymentHistoryId];
+        return await executeQuery(query, values);
+    }
+
+    // ===============================
+    //  Calculate Total Revenue of the System
+    // ===============================
+    static async calculateTotalRevenue() {
+        const query = `
+            SELECT SUM(amount) AS totalRevenue 
+            FROM PaymentsHistory
+        `;
+        const result = await executeQuery(query);
+        return result[0]?.totalRevenue || 0;
+    }
+
+    static async calculateMonthlyRevenue() {
+        const query = `
+            SELECT 
+                MONTH(paymentDate) AS month, 
+                YEAR(paymentDate) AS year, 
+                SUM(amount) AS totalRevenue 
+            FROM PaymentsHistory
+            GROUP BY YEAR(paymentDate), MONTH(paymentDate)
+            ORDER BY YEAR(paymentDate), MONTH(paymentDate)
+        `;
+        const result = await executeQuery(query);
+
+        const monthlyRevenue = Array(12).fill(0);
+        result.forEach((row) => {
+            if (row.year === new Date().getFullYear()) {
+                monthlyRevenue[row.month - 1] = parseFloat(row.totalRevenue);
+            }
+        });
+
+        return monthlyRevenue;
     }
 }
 

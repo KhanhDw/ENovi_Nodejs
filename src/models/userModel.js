@@ -217,6 +217,33 @@ class UserModel {
             throw error;
         }
     }
+
+
+
+    static async getTotalUsers() {
+        try {
+            const [result] = await executeQuery(
+                "SELECT COUNT(*) AS total FROM users"
+            );
+            return result.total;
+        } catch (error) {
+            console.error("Lỗi khi lấy tổng số người dùng:", error);
+            throw error;
+        }
+    }
+
+
+    static async getTotalInstructors() {
+        try {
+            const [result] = await executeQuery(
+                "SELECT COUNT(*) AS total FROM users WHERE role = 'instructor'"
+            );
+            return result.total;
+        } catch (error) {
+            console.error("Lỗi khi lấy tổng số giảng viên:", error);
+            throw error;
+        }
+    }
 }
 
 module.exports = UserModel;

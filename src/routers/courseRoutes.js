@@ -15,11 +15,11 @@ router.post("/create", courseController.createCourse);
 // tạo mới lesson (POST create new lesson)
 router.post("/lesson/create", LessionController.createLession);
 
-// ✅ Lấy thông tin thanh toán khóa học theo courseId (POST - đọc dữ liệu) ////
-router.post("/course/payment", courseController.getCoursePaymentById);
-
 // ✅ Xóa sectoion theo courseID (DELETE - xóa dữ liệu)
 router.post("/:courseId/section/create", sectionController.createSection);
+
+// ✅ Cập nhật video giới thiệu khóa học (PUT - cập nhật một phần)
+router.put("/:courseId/update/intro-video", courseController.updateIntroVideo);
 
 // ✅ Cập nhật khóa học của giảng viên (PUT - cập nhật một phần)
 router.put(
@@ -65,6 +65,9 @@ router.delete(
 
 // ✅ Xóa sectoion theo courseID (DELETE - xóa dữ liệu)
 router.delete("/lesson/:lessonId/delete", LessionController.deleteLession);
+
+// ✅ Lấy thông tin thanh toán khóa học theo courseId (POST - đọc dữ liệu) ////
+router.get("/course/payment", courseController.getCoursePaymentById);
 
 // ✅ Tìm kiếm khóa học theo tiêu đề của giảng viên (GET - tìm kiếm)
 router.get(

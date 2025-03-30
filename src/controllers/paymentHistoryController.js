@@ -91,6 +91,79 @@ const getWithdrawalHistory = async (req, res) => {
             .json({ success: false, message: "Internal server error" });
     }
 };
+const getWithdrawalHistory_confirmed = async (req, res) => {
+    try {
+        const { userId } = req.query;
+        const history = await paymentModel.getWithdrawalHistoryInstructor_confirmed(
+            userId
+        );
+        return res.status(200).json({ success: true, data: history });
+    } catch (error) {
+        console.error("Error fetching withdrawal history:", error);
+        return res
+            .status(500)
+            .json({ success: false, message: "Internal server error" });
+    }
+};
+
+
+const updatePaymentStatus = async (req, res) => {
+    const { paymentHistoryId, newStatus } = req.body;
+    try {
+        const validStatuses = ['completed', 'rejected', 'approved'];
+        if (!validStatuses.includes(newStatus)) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid status. Valid statuses are: 'completed', 'rejected', 'approved'.",
+            });
+        }
+
+        const result = await paymentModel.updatePaymentStatus(paymentHistoryId, newStatus);
+        res.status(200).json({
+            success: true,
+            message: "Payment status updated successfully",
+            data: result,
+        });
+    } catch (error) {
+        console.error("Error updating payment status:", error);
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+};
+
+
+// =========================
+// REVENUE ADMIN
+// =========================
+const getTotalRevenue = async (req, res) => {
+    try {
+        const totalRevenue = await paymentModel.calculateTotalRevenue();
+        res.status(200).json({ success: true, data: { totalRevenue } });
+    } catch (error) {
+        console.error("Error calculating total revenue:", error);
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+};
+
+const getMonthlyRevenue = async (req, res) => {
+    try {
+        const monthlyRevenue = await paymentModel.calculateMonthlyRevenue();
+        res.status(200).json({ success: true, data: monthlyRevenue });
+    } catch (error) {
+        console.error("Error calculating monthly revenue:", error);
+        res.status(500).json({
+            success: false,
+            message: "Internal server error",
+        });
+    }
+};
+
+
 
 module.exports = {
     getPaymentHistoryByCourseTitleAndUserId,
@@ -98,4 +171,8 @@ module.exports = {
     getEnrollmentBuyCourseByUserId,
     createPaymentRequest,
     getWithdrawalHistory,
+    getTotalRevenue,
+    getMonthlyRevenue,
+    getWithdrawalHistory_confirmed,
+    updatePaymentStatus,
 };

@@ -23,6 +23,8 @@ const streamVideo = require("./streamVideoRoutes");
 const paymentHistoryRoutes = require("./paymentHistoryRouter");
 const paymentMethodRoutes = require("./paymentMethodRoutes");
 const bankRoutes = require("./bankRoutes");
+const commentRoutes = require("./commentRoutes");
+const ratingRoutes = require("./ratingRoutes");
 
 // Kết nối các router con
 router.use("/search", searchRoutes);
@@ -42,6 +44,8 @@ router.use("/lesson", lessonRouter);
 router.use("/stream", streamVideo);
 router.use("/payment-method", paymentMethodRoutes);
 router.use("/banks", bankRoutes);
+router.use("/rating", ratingRoutes);
+router.use("/comment", commentRoutes);
 
 // đặc biệt
 router.use("/upload-img", uploadImageRouter);

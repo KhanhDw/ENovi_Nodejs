@@ -29,6 +29,7 @@ class CourseModel {
                 c.img,
                 c.duration,
                 c.rating,
+                c.intro_video, -- thêm link giới thiệu khóa học
                 c.languages AS language_code,  -- Hiển thị mã ngôn ngữ
                 l.language_name,  -- Lấy tên ngôn ngữ từ bảng Languages
                 c.subtitles AS subtitle_code,
@@ -440,9 +441,44 @@ class CourseModel {
     }
 
     static async getAllCourse() {
-        return await executeQuery("SELECT * FROM Courses");
+        return await executeQuery(`
+            SELECT 
+                c.id AS course_id,
+                c.title AS course_title,
+                c.price,
+                c.level,
+                c.instructorId,
+                u.username AS instructorName,
+                c.rating,
+                c.img,
+                COUNT(e.userId) AS total_enrollments,
+                c.status,
+                c.createdAt,
+                 u.avatar AS instructorAvatar,
+                COALESCE(SUM(ph.amount), 0) AS revenue
+            FROM 
+                Courses c
+            LEFT JOIN 
+                Users u ON c.instructorId = u.id
+            LEFT JOIN 
+                Enrollments e ON c.id = e.courseId
+            LEFT JOIN 
+                PaymentsHistory ph ON c.id = ph.courseId AND ph.status = 'completed' 
+            GROUP BY 
+                c.id, 
+                c.title, 
+                c.price, 
+                c.level, 
+                c.instructorId, 
+                u.username,
+                c.rating, 
+                c.img,
+                c.status, 
+                u.avatar,
+                c.createdAt;
+        `);
     }
-    
+
     static async getCourseByTitleLike(title) {
         const safeTitle = title.replace(/[%_]/g, "\\$&"); // Escape special characters for SQL LIKE
         return await executeQuery("SELECT * FROM Courses WHERE title LIKE ?", [
@@ -465,9 +501,9 @@ class CourseModel {
         `;
         // return await executeQuery(query);
         return await executeQuery(query, [limit]);
-// 
+        //
     }
-    
+
     static async getTopRatedCourses(limit = 10) {
         const query = `
             SELECT 
@@ -508,7 +544,10 @@ class CourseModel {
             const [result] = await executeQuery(query, [instructorId]);
             return result.total_courses;
         } catch (error) {
-            console.error("Lỗi khi lấy số lượng khóa học của giảng viên:", error);
+            console.error(
+                "Lỗi khi lấy số lượng khóa học của giảng viên:",
+                error
+            );
             throw error;
         }
     }
@@ -532,7 +571,21 @@ class CourseModel {
         `;
         return await executeQuery(query, courseId);
     }
-}
 
+
+
+    static async updateIntroVideo(courseId, introVideoUrl) {
+        if (!courseId || !introVideoUrl) {
+            throw new Error("Thiếu thông tin cần thiết để cập nhật intro_video");
+        }
+
+        const query = `
+            UPDATE Courses
+            SET intro_video = ?, updatedAt = CURRENT_TIMESTAMP
+            WHERE id = ?;
+        `;
+        return await executeQuery(query, [introVideoUrl, courseId]);
+    }
+}
 
 module.exports = CourseModel;

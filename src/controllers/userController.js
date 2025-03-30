@@ -219,6 +219,45 @@ const getUserAvatar = async (req, res) => {
     }
 };
 
+const getTotalUsers = async (req, res) => {
+    try {
+        const totalUsers = await UserModel.getTotalUsers();
+        res.status(200).json({
+            success: true,
+            message: "Lấy tổng số người dùng thành công",
+            totalUsers: totalUsers
+        });
+    } catch (error) {
+        console.error("Lỗi khi lấy tổng số người dùng:", error);
+        res.status(500).json({
+            success: false,
+            message: "Lỗi khi lấy tổng số người dùng",
+            error: error.message
+        });
+    }
+};
+
+
+const getTotalInstructors = async (req, res) => {
+    try {
+        const totalInstructors = await UserModel.getTotalInstructors();
+        res.status(200).json({
+            success: true,
+            message: "Lấy tổng số giảng viên thành công",
+            totalInstructors: totalInstructors
+        });
+    } catch (error) {
+        console.error("Lỗi khi lấy tổng số giảng viên:", error);
+        res.status(500).json({
+            success: false,
+            message: "Lỗi khi lấy tổng số giảng viên",
+            error: error.message
+        });
+    }
+};
+
+
+
 
 module.exports = {
     getAllUsers,
@@ -229,5 +268,7 @@ module.exports = {
     getUserSearchByRoleEmailUername,
     getCountUserRegiterInMonth,
     updateUserImage,
-    getUserAvatar
+    getUserAvatar,
+    getTotalUsers,
+    getTotalInstructors
 };

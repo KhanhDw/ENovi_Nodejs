@@ -23,6 +23,7 @@ class CourseDetailModel {
             c.subtitles,
             c.code_discount,
             c.percent_discount,
+            c.intro_video,
             cd.overview,
             cd.description,
             cd.requirements,    

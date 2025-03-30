@@ -4,12 +4,16 @@ const { executeQuery } = require("../config/query");
 class MylearningModel {
    
     async addToMyLearning(userId, courseId) {
+        if (!Array.isArray(courseId)) {
+            courseId = [courseId];
+        }
         const query = `
             INSERT INTO MyLearning (userId, courseId)
-            VALUES (?, ?);
+            VALUES ${courseId.map(() => '(?, ?)').join(',')};
         `;
+        const values = courseId.flatMap(id => [userId, id]);
         try {
-            await executeQuery(query, [userId, courseId]);
+            await executeQuery(query, values);
             console.log("Data added to MyLearning successfully.");
         } catch (error) {
             console.error("Error adding data to MyLearning:", error);

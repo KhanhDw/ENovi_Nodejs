@@ -16,7 +16,11 @@ module.exports = {
         }
 
         try {
-            await mylearning.addToMyLearning(userId, courseId);
+            // Chạy cả hai hàm đồng thời
+            
+                await  mylearning.addToMyLearning(userId, courseId),
+           
+
             res.status(200).json({
                 success: true,
                 message: "Đã thêm khóa học vào My Learning thành công",
@@ -104,12 +108,16 @@ module.exports = {
         const { userId, courseIds } = req.query;
 
         const parsedCourseIds = Array.isArray(courseIds)
-            ? courseIds.map(id => parseInt(id, 10))
-            : courseIds.split(',').map(id => parseInt(id.trim(), 10));
+            ? courseIds.map((id) => parseInt(id, 10))
+            : courseIds.split(",").map((id) => parseInt(id.trim(), 10));
 
-        console.warn("userId và courseIDs:" +  userId, parsedCourseIds );
+        console.warn("userId và courseIDs:" + userId, parsedCourseIds);
 
-        if (!userId || !Array.isArray(parsedCourseIds) || parsedCourseIds.length === 0) {
+        if (
+            !userId ||
+            !Array.isArray(parsedCourseIds) ||
+            parsedCourseIds.length === 0
+        ) {
             return res.status(400).json({
                 success: false,
                 message: "Thiếu userId hoặc danh sách courseIds không hợp lệ",
@@ -121,9 +129,9 @@ module.exports = {
                 userId,
                 parsedCourseIds
             );
-            console.log('allExist:', allExist);
+            console.log("allExist:", allExist);
 
-            if (allExist || allExist.length !== 0 ) {
+            if (allExist && allExist.length > 0) {
                 try {
                     await cartModel.deleteMultipleCoursesFromCart(
                         userId,
@@ -145,7 +153,7 @@ module.exports = {
                         error: deleteError.message,
                     });
                 }
-            }else{
+            } else {
                 res.status(200).json({
                     success: true,
                     message: "Không tìm thấy khóa học nào trong MyLearning",
