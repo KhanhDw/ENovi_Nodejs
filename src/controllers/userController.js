@@ -256,7 +256,32 @@ const getTotalInstructors = async (req, res) => {
     }
 };
 
+const updateUserProfile = async (req, res) => {
+    try {
+        const { id, username, website, biography } = req.body;
 
+        if (!id || !username || !website || !biography) {
+            return res.status(400).json({
+                success: false,
+                message: "Thiếu thông tin cần thiết để cập nhật hồ sơ người dùng"
+            });
+        }
+
+        await UserModel.updateUserProfile(id, username, website, biography);
+
+        res.status(200).json({
+            success: true,
+            message: "Cập nhật hồ sơ người dùng thành công"
+        });
+    } catch (error) {
+        console.error("Lỗi khi cập nhật hồ sơ người dùng:", error);
+        res.status(500).json({
+            success: false,
+            message: "Lỗi khi cập nhật hồ sơ người dùng",
+            error: error.message
+        });
+    }
+};
 
 
 module.exports = {
@@ -270,5 +295,6 @@ module.exports = {
     updateUserImage,
     getUserAvatar,
     getTotalUsers,
-    getTotalInstructors
+    getTotalInstructors,
+    updateUserProfile
 };

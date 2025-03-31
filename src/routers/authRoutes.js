@@ -90,14 +90,14 @@ router.get(
                         }
 
                         // Trả về response JSON cho frontend
-                        // Lưu token vào session
+                        // Lưu token vào Session
                         req.session.token = token;
                         req.session.user = {
                             id: userLogin.id,
                             googleId,
-                            name,
+                            userName: userLogin.username ? userLogin.username : name, // Sử dụng username nếu có, nếu không thì dùng name
                             email,
-                            picture,
+                            picture: userLogin.avatar ? userLogin.avatar : picture,
                             website: userLogin.website,
                             biography: userLogin.biography,
                             role: userLogin.role ?? "student", // Gán "student" nếu role là undefined/null

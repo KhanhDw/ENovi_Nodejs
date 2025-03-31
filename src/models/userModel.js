@@ -244,6 +244,22 @@ class UserModel {
             throw error;
         }
     }
+
+
+    static async updateUserProfile(id, username, website, biography) {
+        try {
+
+            console.log(id, username, website, biography);
+
+            return await executeQuery(
+                "UPDATE users SET username = ?, website = ?, biography = ? WHERE id = ?",
+                [username, website, biography, id]
+            );
+        } catch (error) {
+            console.error("Lỗi khi cập nhật thông tin người dùng:", error);
+            throw error;
+        }
+    }
 }
 
 module.exports = UserModel;

@@ -22,10 +22,12 @@ const RegisterUser = async (req, res) => {
             );
             if (userExitEmail.length > 0) {
                 return res.status(400).json({
+                    success: false,
                     message: "Email đã tồn tại",
                 });
             } else if (userExitUsername.length > 0) {
                 return res.status(400).json({
+                    success: false,
                     message: "Tên người dùng đã tồn tại",
                 });
             }
