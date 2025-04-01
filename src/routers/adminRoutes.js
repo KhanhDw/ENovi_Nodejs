@@ -10,6 +10,8 @@ router.post("/category/v0/new", categoryController.createCategories);
 router.post("/category/v1/new", categoryController.createCategoriesv1);
 router.post("/category/v2/new", categoryController.createCategoriesv2);
 
+router.delete("/course/:courseId/delete", courseController.deleteCourseById);
+
 router.delete("/category/v0/delete", categoryController.deleteCategories);
 router.delete("/category/v1/delete", categoryController.deleteCategoriesv1);
 router.delete("/category/v2/delete", categoryController.deleteCategoriesv2);

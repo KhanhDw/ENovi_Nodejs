@@ -18,6 +18,11 @@ router.post("/lesson/create", LessionController.createLession);
 // ✅ Xóa sectoion theo courseID (DELETE - xóa dữ liệu)
 router.post("/:courseId/section/create", sectionController.createSection);
 
+
+// ✅ Xóa khóa học theo courseId (DELETE - xóa dữ liệu)
+router.delete("/:courseId/delete", courseController.deleteCourseById);
+
+
 // ✅ Cập nhật video giới thiệu khóa học (PUT - cập nhật một phần)
 router.put("/:courseId/update/intro-video", courseController.updateIntroVideo);
 

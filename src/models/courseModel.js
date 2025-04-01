@@ -586,6 +586,19 @@ class CourseModel {
         `;
         return await executeQuery(query, [introVideoUrl, courseId]);
     }
+
+
+    static async deleteCourseById(courseId) {
+        if (!courseId) {
+            throw new Error("Thiếu thông tin ID khóa học để xóa");
+        }
+
+        const query = `
+            DELETE FROM Courses
+            WHERE id = ?;
+        `;
+        return await executeQuery(query, [courseId]);
+    }
 }
 
 module.exports = CourseModel;

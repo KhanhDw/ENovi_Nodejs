@@ -462,6 +462,39 @@ const updateIntroVideo = async (req, res) => {
     }
 };
 
+const deleteCourseById = async (req, res) => {
+    try {
+        const { courseId } = req.params;
+
+        if (!courseId) {
+            return res.status(400).json({
+                success: false,
+                message: "Thiếu thông tin ID khóa học để xóa",
+            });
+        }
+        if (courseId === -1) {
+            return res.status(400).json({
+                success: false,
+                message: "id -1 xóa thất bại",
+            });
+        }
+
+        await CourseModel.deleteCourseById(courseId);
+
+        res.status(200).json({
+            success: true,
+            message: "Xóa khóa học thành công",
+        });
+    } catch (error) {
+        console.error("Lỗi khi xóa khóa học:", error);
+        res.status(500).json({
+            success: false,
+            message: "Lỗi server khi xóa khóa học",
+            error: error.message,
+        });
+    }
+};
+
 module.exports = {
     getCourseById,
     getCourseByTitle,
@@ -484,4 +517,5 @@ module.exports = {
     getCountCoursesByInstructor,
     getCoursePaymentById,
     updateIntroVideo,
+    deleteCourseById
 };
