@@ -10,7 +10,7 @@ const router = express.Router();
 
 router.get("/", authController.homelo);
 //------------------------------------------
-router.get("/go", authController.loginGoole); //just use to test api in back end 
+router.get("/go", authController.loginGoole); //just use to test api in back end
 //------/google------------------------------
 router.get(
     "/google",
@@ -23,122 +23,109 @@ router.get(
         failureRedirect: "/auth",
     }),
     async (req, res) => {
-        if (req.user !== null) {
-            if (req.user) {
-                try {
-                    let userLogin;
-                    // Sử dụng await và truyền trực tiếp các trường từ req.user
-                    // Lấy các trường an toàn từ req.user (xử lý undefined)
-                    const googleId = req.user.id || null;
-                    const name = req.user.displayName || null;
-                    const email =
-                        (req.user.emails &&
-                            req.user.emails[0] &&
-                            req.user.emails[0].value) ||
-                        null; // Kiểm tra cẩn thận
-                    const picture =
-                        (req.user.photos &&
-                            req.user.photos[0] &&
-                            req.user.photos[0].value) ||
-                        null; // Kiểm tra cẩn thận
-
-                            console.log("googleId: "+ googleId);
-
-                    try {
-                        //đăng nhập
-                        const userLoginGoogle =
-                            await userModel.findUserByGoogleId(googleId);
-                        const userIdLogin = await userModel.getUserByGoogleID(
-                            googleId
-                        );
-
-                        let token,
-                            message,
-                            isNewUser = false;
-
-                        console.log("userLoginGoogle", userIdLogin.length);
-
-                        if (userLoginGoogle) {
-                            userLogin = userLoginGoogle;
-                            token = generateToken(userIdLogin);
-                            message = "login success";
-                        } else {
-                            //đăng ký
-                            // tạo người dùng mới
-                            await userModel.createUserGoogle(
-                                googleId,
-                                name,
-                                email,
-                                picture
-                            );
-
-                            const userIdLogin =
-                            await userModel.getUserByGoogleID(googleId);
-                            console.log("userReGoogle", userIdLogin.length);
-
-                            userLogin = userIdLogin;
-                            token = generateToken(userIdLogin);
-                            message = "register success";
-
-                           
-                        }
-
-                        // Lưu token vào session nếu cần
-                        req.session.accessToken = req.user.accessToken;
-                        if (req.user.refreshToken) {
-                            req.session.refreshToken = req.user.refreshToken;
-                        }
-
-                        // Trả về response JSON cho frontend
-                        // Lưu token vào Session
-                        req.session.token = token;
-                        req.session.user = {
-                            id: userLogin.id,
-                            googleId,
-                            userName: userLogin.username ? userLogin.username : name, // Sử dụng username nếu có, nếu không thì dùng name
-                            email,
-                            picture: userLogin.avatar ? userLogin.avatar : picture,
-                            website: userLogin.website,
-                            biography: userLogin.biography,
-                            role: userLogin.role ?? "student", // Gán "student" nếu role là undefined/null
-                        };
-                        req.session.isNewUser = isNewUser;
-                        req.session.message = message;
-                        // Redirect về frontend mà không cần dữ liệu trong query
-                        return res.redirect(
-                            `${process.env.FONT_END_URL}/auth/callback`
-                        );
-                    } catch (error) {
-                        console.error("Error in Google login process:", error);
-                        // return res.status(500).json({
-                        //     success: false,
-                        //     message: "Lỗi xử lý đăng nhập Google",
-                        //     error: error.message,
-                        // });
-                        return res.redirect(
-                            `${process.env.FONT_END_URL}/auth/callback?error=auth_failed`
-                        );
-                    }
-                } catch (error) {
-                    console.error("Error processing user data:", error);
-                    return res.status(500).json({
-                        success: false,
-                        message: "Lỗi xử lý thông tin người dùng",
-                        error: error.message,
-                    });
-                }
-            } else {
-                return res.status(401).json({
-                    success: false,
-                    message: "Không tìm thấy thông tin người dùng",
-                });
+        try {
+            if (!req.user) {
+                return res.redirect(
+                    `${process.env.FONT_END_URL}/auth/callback?error=no_user`
+                );
             }
+
+            const googleId = req.user.id || null;
+            const name = req.user.displayName || null;
+            const email =
+                (req.user.emails &&
+                    req.user.emails[0] &&
+                    req.user.emails[0].value) ||
+                null;
+            const picture =
+                (req.user.photos &&
+                    req.user.photos[0] &&
+                    req.user.photos[0].value) ||
+                null;
+
+            let userLogin,
+                token,
+                message,
+                isNewUser = false;
+
+            const userLoginGoogle = await userModel.findUserByGoogleId(
+                googleId
+            );
+            const userIdLogin = await userModel.getUserByGoogleID(googleId);
+
+            if (userLoginGoogle) {
+                userLogin = userLoginGoogle;
+                token = generateToken(userIdLogin);
+                message = "login success";
+            } else {
+                await userModel.createUserGoogle(
+                    googleId,
+                    name,
+                    email,
+                    picture
+                );
+                const userIdLogin = await userModel.getUserByGoogleID(googleId);
+                userLogin = userIdLogin;
+                token = generateToken(userIdLogin);
+                message = "register success";
+                isNewUser = true;
+            }
+
+            // Lưu session
+            req.session.token = token;
+            req.session.user = {
+                id: userLogin.id,
+                googleId,
+                userName: userLogin.username ? userLogin.username : name,
+                email,
+                picture: userLogin.avatar ? userLogin.avatar : picture,
+                website: userLogin.website,
+                biography: userLogin.biography,
+                role: userLogin.role ?? "student",
+            };
+            req.session.isNewUser = isNewUser;
+            req.session.message = message;
+
+            console.log("Session saved:", req.session);
+
+            return res.redirect(`${process.env.FONT_END_URL}/auth/callback`);
+        } catch (error) {
+            console.error("Error in Google login process:", error);
+            return res.redirect(
+                `${process.env.FONT_END_URL}/auth/callback?error=auth_failed`
+            );
         }
     }
 );
+
+// API để frontend lấy dữ liệu session
+router.get("/api/auth/google/callback", (req, res) => {
+    if (req.session.token && req.session.user) {
+        const response = {
+            success: true,
+            token: req.session.token,
+            user: req.session.user,
+            message: req.session.message,
+            isNewUser: req.session.isNewUser,
+        };
+        // Xóa session sau khi trả về
+        req.session.destroy((err) => {
+            if (err) console.error("Error destroying session:", err);
+        });
+        return res.json(response);
+    } else {
+        return res.json({
+            success: false,
+            message: "No session data found",
+        });
+    }
+});
 //------/google/data-------------------------
 router.get("/google/data", (req, res) => {
-    if (req.session.token) {
+
+    console.log('1111111111111111111111111111:', req.session.token , req.session.user);
+
+    if (req.session.token && req.session.user) {
         const response = {
             success: true,
             message: req.session.message,
@@ -146,10 +133,24 @@ router.get("/google/data", (req, res) => {
             user: req.session.user,
             isNewUser: req.session.isNewUser,
         };
-        console.log("Session data:", response);
-        // Xóa session sau khi trả dữ liệu (tùy chọn)
-        req.session.destroy();
-        return res.status(200).json(response);
+        // console.log("Session data:", response);
+        // Xóa session sau khi trả dữ liệu vì session đã gán cho response
+        // Xóa session + cookie
+        req.session.destroy((err) => {
+            if (err)
+                return res
+                    .status(500)
+                    .json({ error: "Error clearing session" });
+
+            res.clearCookie("connect.sid", {
+                path: "/",
+                httpOnly: true,
+                secure: process.env.NODE_ENV === "production",
+                sameSite: "lax",
+            });
+
+            return res.status(200).json(response);
+        });
     } else {
         return res
             .status(401)

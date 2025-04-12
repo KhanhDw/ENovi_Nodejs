@@ -27,11 +27,11 @@ CREATE TABLE `mylearning` (
   `userId` int NOT NULL,
   `courseId` int NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `courseId` (`courseId`),
+  KEY `fk_MyLearning_courses` (`courseId`),
   KEY `fk_MyLearning_user` (`userId`),
   CONSTRAINT `fk_MyLearning_courses` FOREIGN KEY (`courseId`) REFERENCES `courses` (`id`),
-  CONSTRAINT `fk_MyLearning_user` FOREIGN KEY (`userId`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=103 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `fk_MyLearning_user` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=108 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -40,7 +40,7 @@ CREATE TABLE `mylearning` (
 
 LOCK TABLES `mylearning` WRITE;
 /*!40000 ALTER TABLE `mylearning` DISABLE KEYS */;
-INSERT INTO `mylearning` VALUES (100,33,69),(101,33,111),(102,33,81);
+INSERT INTO `mylearning` VALUES (101,33,111),(105,70,81);
 /*!40000 ALTER TABLE `mylearning` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -53,4 +53,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-02 15:38:39
+-- Dump completed on 2025-04-12 16:10:42

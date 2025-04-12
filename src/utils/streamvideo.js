@@ -39,7 +39,7 @@ function streamVideoF(namevideo, req, res) {
                 "Content-Type": "video/mp4",
             };
 
-            console.log("đang stream video name: ", namevideo);
+            // console.log("đang stream video name: ", namevideo);
 
             res.writeHead(206, head);
             file.pipe(res);
@@ -52,8 +52,8 @@ function streamVideoF(namevideo, req, res) {
             fs.createReadStream(videoPath).pipe(res);
         }
     } catch (error) {
-        console.log("Error while streaming video: ", error);
-        res.status(500).send("An error occurred while streaming the video.");
+        // console.log("try-catch : Error while streaming video: ", error);
+        res.status(404).json({loadStreamError: true});
     }
 }
 

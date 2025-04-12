@@ -171,7 +171,7 @@ const orderController = {
                     try {
                         await paymentModel.addPaymentHistory(paymentDataArray); // điều chỉnh 
                         try {
-                            await mylearning.addToMyLearning(userId, courses);// điều chỉnh 
+                            await mylearning.addToMyLearning(userId, courses); // điều chỉnh 
                             try {
                                 await EnrollmentModel.addEnrollment(
                                     userId,

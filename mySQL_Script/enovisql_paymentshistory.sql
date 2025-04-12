@@ -31,11 +31,11 @@ CREATE TABLE `paymentshistory` (
   `status` enum('pending','completed','failed','refunded') NOT NULL,
   `paymentDate` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `fk_payments_user` (`userId`),
   KEY `fk_payments_course` (`courseId`),
+  KEY `fk_payments_user` (`userId`),
   CONSTRAINT `fk_payments_course` FOREIGN KEY (`courseId`) REFERENCES `courses` (`id`),
-  CONSTRAINT `fk_payments_user` FOREIGN KEY (`userId`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  CONSTRAINT `fk_payments_user` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -44,7 +44,7 @@ CREATE TABLE `paymentshistory` (
 
 LOCK TABLES `paymentshistory` WRITE;
 /*!40000 ALTER TABLE `paymentshistory` DISABLE KEYS */;
-INSERT INTO `paymentshistory` VALUES (1,33,69,2385246.00,'vnpay','completed','2025-03-29 08:21:33'),(2,33,100,1427965.00,'vnpay','completed','2025-03-29 08:21:33'),(3,33,69,238524.00,'vnpay','completed','2025-03-29 17:30:51');
+INSERT INTO `paymentshistory` VALUES (1,33,69,2385246.00,'vnpay','completed','2025-03-29 08:21:33'),(2,33,100,1427965.00,'vnpay','completed','2025-03-29 08:21:33'),(3,33,69,238524.00,'vnpay','completed','2025-03-29 17:30:51'),(4,33,96,276934.00,'vnpay','completed','2025-04-04 15:41:32'),(5,70,81,87214.00,'vnpay','completed','2025-04-12 14:27:13'),(6,70,81,87214.00,'vnpay','completed','2025-04-12 14:28:00');
 /*!40000 ALTER TABLE `paymentshistory` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -57,4 +57,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-04-02 15:38:39
+-- Dump completed on 2025-04-12 16:10:42

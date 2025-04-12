@@ -12,8 +12,8 @@ const sessionMiddleware = require("./config/session"); // Import session middlew
 const passport = require("./config/passport"); // Import Passport configuration
 const crypto = require("crypto");
 
-const { uploadYoutube } = require("./services/video/uploadYoutube");
-const { deleteVideoTemp } = require("./services/video/deleteFileTemp");
+// const { uploadYoutube } = require("./services/video/uploadYoutube");
+// const { deleteVideoTemp } = require("./services/video/deleteFileTemp");
 
 const app = express();
 const secret = crypto.randomBytes(64).toString("hex");
@@ -53,6 +53,7 @@ app.use(express.urlencoded({limit: '1mb', extended: true })); // Xử lý form d
 // Sử dụng session middleware
 app.use(
     expressSesion({
+        name: "connect.sid", // Tên cookie session
         secret: process.env.SESSION_SECRET, 
         resave: false,
         saveUninitialized: true,
@@ -60,6 +61,7 @@ app.use(
             maxAge: 1000 * 60 * 60 * 24, // 1 day
             httpOnly: true,
             secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+            sameSite: "lax", // SameSite attribute for CSRF protection
         },
     })
 );
