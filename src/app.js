@@ -69,6 +69,9 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+
+
+
 app.use("/", routes); // Kết nối các router
 
 /* test connect database */

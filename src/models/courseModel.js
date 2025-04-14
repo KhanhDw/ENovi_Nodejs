@@ -47,7 +47,7 @@ class CourseModel {
                 s.sectionOrder
             FROM Courses c
             LEFT JOIN CourseCategories cc ON c.id = cc.courseId
-            LEFT JOIN Sections s ON s.courseId = cc.courseId
+            LEFT JOIN Sections s ON s.courseId = c.id
             LEFT JOIN Categories cat ON cc.categoryId = cat.id AND cc.categoryType = 'lĩnh vực'
             LEFT JOIN CategoriesV1 catV1 ON cc.categoryId = catV1.id AND cc.categoryType = 'chuyên ngành'
             LEFT JOIN CategoriesV2 catV2 ON cc.categoryId = catV2.id AND cc.categoryType = 'phân mục'

@@ -50,3 +50,11 @@ thêm lịch sử thanh toán
 cài đặt: npm install -g localtunnel 
 public website với port đang dùng: lt --port 3000 --subdomain  <đặt tên web>
 mở terminal cmd lấy password vào web: curl https://loca.lt/mytunnelpassword
+
+
+
+// nếu bị lỗi server Error: listen EADDRINUSE: address already in use :::3000
+
+mở cmd lấy số cuối cùng của dãy các số
+--> netstat -aon | findstr :3000
+taskkill /PID <nhập_số_tại_đây> /F

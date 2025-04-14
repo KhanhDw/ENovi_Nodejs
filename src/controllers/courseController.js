@@ -30,7 +30,7 @@ const getCourseById = async (req, res) => {
         const { idCourse, instructorId } = req.params;
         console.log({ idCourse, instructorId });
         const course = await CourseModel.getCourseById(idCourse, instructorId);
-        res.json({ success: true, course: course });
+        res.status(200).json({ success: true, course: course });
     } catch (error) {
         res.status(500).json({
             success: false,
