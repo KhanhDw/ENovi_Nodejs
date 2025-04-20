@@ -3,14 +3,13 @@ const https = require("https");
 const path = require("path");
 const app = require("./src/app");
 const fs = require("fs");
-const ngrok = require('ngrok');
 const port = 3000;
 
 
 // Đọc SSL certificate
 const options = {
-    key: fs.readFileSync(path.join(__dirname, "cert", "private_key.pem")),
-    cert: fs.readFileSync(path.join(__dirname, "cert", "cert.pem")),
+    key: fs.readFileSync(path.join(__dirname, "cert", "localhost-key.pem")),
+    cert: fs.readFileSync(path.join(__dirname, "cert", "localhost.pem")),
 };
 
 

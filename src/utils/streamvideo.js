@@ -2,13 +2,15 @@ const fs = require("fs");
 const path = require("path");
 
 function streamVideoF(namevideo, req, res) {
-
     try {
-        console.log("streamVideoF: ",
-            "namevideo: ", namevideo,
-            "req: ", req,
-            "res: ", res
+        console.log(
+            "streamVideoF: nhân dữ liệu thành cong từ client: ",
+            namevideo
         );
+        //     "namevideo: ", namevideo,
+        //     "req: ", req,
+        //     "res: ", res
+        // );
 
         if (namevideo === undefined || namevideo === null) {
             console.log("namevideo is null or undefined");
@@ -16,11 +18,14 @@ function streamVideoF(namevideo, req, res) {
         }
     } catch (error) {
         console.log("error streamVideoF: ", error);
-        
     }
 
     try {
-        const videoPath = path.join(__dirname, "../../uploads/video", namevideo);
+        const videoPath = path.join(
+            __dirname,
+            "../../uploads/video",
+            namevideo
+        );
         const stat = fs.statSync(videoPath);
         const fileSize = stat.size;
         const range = req.headers.range;
@@ -53,7 +58,7 @@ function streamVideoF(namevideo, req, res) {
         }
     } catch (error) {
         // console.log("try-catch : Error while streaming video: ", error);
-        res.status(404).json({loadStreamError: true});
+        res.status(404).json({ loadStreamError: true });
     }
 }
 

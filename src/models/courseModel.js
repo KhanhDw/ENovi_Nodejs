@@ -11,6 +11,13 @@ class CourseModel {
             [title, price, instructorId]
         );
     }
+    static async createCourseDetail(courseId) {
+        return await executeQuery(
+            `INSERT INTO coursedetails (courseId)
+             VALUES (?);`,
+            [courseId]
+        );
+    }
 
     // get course to update
     static async getCourseById(idCourse, instructorId) {
@@ -377,6 +384,13 @@ class CourseModel {
         instructorId,
         updates
     ) {
+        console.log(
+            "updateCourseInstructorByInstructorId",
+            idCourse,
+            instructorId,
+            updates
+        );
+
         if (
             !idCourse ||
             !instructorId ||
@@ -386,6 +400,9 @@ class CourseModel {
             throw new Error("Thiếu thông tin cần thiết để cập nhật");
         }
 
+        instructorId = parseInt(instructorId);
+        idCourse = parseInt(idCourse);
+
         let fields = [];
         let values = [];
 
@@ -394,6 +411,7 @@ class CourseModel {
                 // Chỉ cập nhật nếu có giá trị
                 fields.push(`${key} = ?`);
                 values.push(value);
+                console.log("fields", key, value);
             }
         });
 
@@ -406,6 +424,9 @@ class CourseModel {
                     SET ${fields.join(", ")}, updatedAt = CURRENT_TIMESTAMP 
                     WHERE c.id = ? AND instructorId = ?;
                     `;
+
+        console.log("sql:", sql);
+        console.log("values:", values);
         return await executeQuery(sql, values);
     }
 
@@ -572,11 +593,11 @@ class CourseModel {
         return await executeQuery(query, courseId);
     }
 
-
-
     static async updateIntroVideo(courseId, introVideoUrl) {
         if (!courseId || !introVideoUrl) {
-            throw new Error("Thiếu thông tin cần thiết để cập nhật intro_video");
+            throw new Error(
+                "Thiếu thông tin cần thiết để cập nhật intro_video"
+            );
         }
 
         const query = `
@@ -586,7 +607,6 @@ class CourseModel {
         `;
         return await executeQuery(query, [introVideoUrl, courseId]);
     }
-
 
     static async deleteCourseById(courseId) {
         if (!courseId) {

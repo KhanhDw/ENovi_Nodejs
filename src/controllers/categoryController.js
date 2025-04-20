@@ -166,11 +166,31 @@ const deleteCategoriesv2 = async (req, res) => {
     }
 };
 
-
 const getCourseCategories = async (req, res) => {
     try {
         const { courseId } = req.query;
-        const courseCategories = await CategoriesModel.getCourseCategories(courseId);
+        const courseCategories = await CategoriesModel.getCourseCategories(
+            courseId
+        );
+        res.json({
+            success: true,
+            message: "Lấy dữ liệu thành công",
+            courseCategories: courseCategories,
+        });
+    } catch (error) {
+        console.error("Lỗi lấy lĩnh vực khóa học, nodejs:", error);
+        res.status(500).json({
+            success: false,
+            message: "Lỗi lấy lĩnh vực khóa học, nodejs:",
+        });
+    }
+};
+const getCourseCategoriesTest = async (req, res) => {
+    try {
+        const { courseId } = req.query;
+        const courseCategories = await CategoriesModel.getCourseCategoriesTest(
+            courseId
+        );
         res.json({
             success: true,
             message: "Lấy dữ liệu thành công",
@@ -185,7 +205,6 @@ const getCourseCategories = async (req, res) => {
     }
 };
 
-
 module.exports = {
     getCategories,
     getCategoriesV1,
@@ -196,7 +215,6 @@ module.exports = {
     deleteCategories,
     deleteCategoriesv1,
     deleteCategoriesv2,
-    getCourseCategories
-
-
+    getCourseCategories,
+    getCourseCategoriesTest,
 };

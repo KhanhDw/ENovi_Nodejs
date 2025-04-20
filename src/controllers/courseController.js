@@ -15,6 +15,7 @@ const createCourse = async (req, res) => {
         }
 
         await CourseModel.createCourse(title, price, instructorId);
+
         res.json({ success: true, message: "create successfull" });
     } catch (error) {
         res.status(500).json({
@@ -39,6 +40,7 @@ const getCourseById = async (req, res) => {
         });
     }
 };
+
 const getCourseByTitle = async (req, res) => {
     try {
         const { title } = req.params;
@@ -163,6 +165,7 @@ const getCourseByCategoryV2 = async (req, res) => {
         });
     }
 };
+
 const deleteCourseByInstructorID = async (req, res) => {
     try {
         const { idCourse } = req.params;
@@ -190,6 +193,8 @@ const putUpdateCourseInstructor = async (req, res) => {
             .json({ message: "Thiếu idCourse hoặc instructorId" });
     }
 
+    await CourseModel.createCourseDetail(idCourse);
+
     console.log(Object.keys(updates));
     console.log(Object.values(updates));
 
@@ -197,6 +202,7 @@ const putUpdateCourseInstructor = async (req, res) => {
     if (updates.price !== undefined) {
         // Chuyển đổi price thành số, loại bỏ các ký tự không phải số nếu có
         const numericPrice = parseInt(updates.price);
+        console.log("numericPrice: ", numericPrice);
 
         // Kiểm tra xem price có phải là số hợp lệ không
         if (isNaN(numericPrice)) {
@@ -397,12 +403,11 @@ const getCountCoursesByInstructor = async (req, res) => {
     }
 };
 
-
 const getCoursePaymentById = async (req, res) => {
     try {
         const { courseIds } = req.query;
 
-        const courseIdsArray = courseIds.split(',').map(id => id.trim());
+        const courseIdsArray = courseIds.split(",").map((id) => id.trim());
 
         if (!Array.isArray(courseIdsArray) || courseIdsArray.length === 0) {
             return res.status(400).json({
@@ -517,5 +522,5 @@ module.exports = {
     getCountCoursesByInstructor,
     getCoursePaymentById,
     updateIntroVideo,
-    deleteCourseById
+    deleteCourseById,
 };

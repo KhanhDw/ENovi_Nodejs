@@ -1,0 +1,6 @@
+HƯỚNG DẪN CÂU HÌNH VÀ CÀI ĐẶT “WEBSITE BÁN KHÓA HỌC TRỰC TUYẾN”
+1.	Cài đặt Mysql workbench
+2.	Cài đặt Mysql install
+3.	Cấu hình database
+4.	Cấu hình cert để chạy https cho web
+5.	
