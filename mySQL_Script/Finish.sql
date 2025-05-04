@@ -351,3 +351,54 @@ ADD CONSTRAINT fk_cart_courses FOREIGN KEY (courseId) REFERENCES courses (id) ON
 
 ALTER TABLE cart
 ADD CONSTRAINT fk_cart_user FOREIGN KEY (userId) REFERENCES users (id);
+
+
+-- thứ tự thưc hiện thêm dữ liệu cho các bản khi đã gắn khóa ngoại
+
+-- 1 USER 
+-- 2 LANGUAGES
+-- 3 BANK
+-- 4 categories
+-- 5 categoriesv1
+-- 6 categoriesv2
+-- 7 courses
+-- 8 coursedetails
+-- 9 coursecategories
+-- 10 comments
+-- 11 enrollments
+-- 12 sections
+-- 13 lessons
+-- 14 paymentshistory
+-- 15 payment_methods
+-- 16 payment_requests
+-- 17 rating
+-- 18 cart
+-- 19 không thêm mylearning
+--
+--
+--
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
